@@ -27,12 +27,42 @@ namespace DeviceManagement
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+        //知识点：①中间件②管道追踪
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
             {
+                //可以抛出异常中间件，可以使用DeveloperExceptionPageOptions对其设置
                 app.UseDeveloperExceptionPage();
             }
+
+            #region 默认和静态文件中间件
+
+            //DefaultFilesOptions defaultFilesOptions = new DefaultFilesOptions();
+            //defaultFilesOptions.DefaultFileNames.Clear();
+            //defaultFilesOptions.DefaultFileNames.Add("52abp.html");
+
+            ////这个生效要在静态文件中间件之前
+            //app.UseDefaultFiles(defaultFilesOptions);
+
+            //app.UseStaticFiles();
+
+
+            #endregion
+
+            #region 合体的文件服务中间件
+
+            //FileServerOptions fileServerOptions = new FileServerOptions();
+            //fileServerOptions.DefaultFilesOptions.DefaultFileNames.Clear();
+            //fileServerOptions.DefaultFilesOptions.DefaultFileNames.Add("52abp.html");
+
+            ////添加文件服务中间件,确认了主页
+            ////结合了UseStaticFiles,UseDefaultFiles和UseDirectoryBrowser
+            //app.UseFileServer(fileServerOptions);
+
+            #endregion
+
+            app.UseStaticFiles();
 
             app.UseRouting();
 
@@ -40,12 +70,10 @@ namespace DeviceManagement
             {
                 endpoints.MapGet("/", async context =>
                 {
-                    //进程名
-                    //var processName = System.Diagnostics.Process.GetCurrentProcess().ProcessName;
+                    //正确显示中文
+                    //context.Response.ContentType = "text/plain;charset=utf-8";
 
-                    var configVal = _configuration["MyKey"];
-
-                    await context.Response.WriteAsync(configVal);
+                    await context.Response.WriteAsync("Hosting Environemt: " + env.EnvironmentName);
                 });
             });
         }
