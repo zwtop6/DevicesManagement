@@ -17,7 +17,7 @@
 
       }
     },
-    "StudentManagement": {
+    "DeviceManagement": {
       "commandName": "Project",
       "launchBrowser": true,
       "applicationUrl": "http://localhost:5000",
