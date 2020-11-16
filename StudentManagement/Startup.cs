@@ -2,12 +2,15 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using DeviceManagement.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 
 namespace DeviceManagement
 {
@@ -24,6 +27,14 @@ namespace DeviceManagement
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
+            //MVC Core 只包含了核心的MVC功能
+            //MVC 包含了依赖于MVC Core 以及相关的第三方常用的服务和方法
+            //services.AddMvcCore();
+            services.AddMvc(Options => Options.EnableEndpointRouting = false).AddXmlSerializerFormatters(); ;
+
+            //依赖注入容器注册服务，建立关联
+            services.AddSingleton<IDeviceRepository, MockDeviceRepository>();
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -64,6 +75,8 @@ namespace DeviceManagement
 
             app.UseStaticFiles();
 
+            app.UseMvcWithDefaultRoute();
+
             app.UseRouting();
 
             app.UseEndpoints(endpoints =>
@@ -73,7 +86,7 @@ namespace DeviceManagement
                     //正确显示中文
                     //context.Response.ContentType = "text/plain;charset=utf-8";
 
-                    await context.Response.WriteAsync("Hosting Environemt: " + env.EnvironmentName);
+                    await context.Response.WriteAsync("Hello World");
                 });
             });
         }
