@@ -1,29 +1,27 @@
-﻿@using DeviceManagement.Models
+﻿@model DeviceManagement.ViewModels.HomeDetailsViewModels
+@*@model指定模型类型*@
+@*@Model访问模型对象属性*@
 
-<!DOCTYPE html>
-<html>
+@{
+    ViewBag.Title = "设备详情页面";
+}
 
-<head>
-    <title></title>
-</head>
-<body>
 
-    <h3>@ViewData["PageTitle"]</h3>
+<h3>@Model.PageTitle</h3>
 
-    @{
-        var device = ViewData["Device"] as Device;
-    }
+<div>
+    设备号：@Model.Device.Name
+</div>
+<div>
+    设备类型：@Model.Device.ClassName
+</div>
+<div>
+    所在城市：@Model.Device.City
+</div>
 
-    <div>
-        设备号：@device.Name
-    </div>
-    <div>
-        设备类型：@device.ClassName
-    </div>
-    <div>
-        所在城市：@device.City
-    </div>
+@*有选择的使用js文件*@
+@section Scripts{
+    <script src="~/js/CustomScript.js"></script>
+}
 
-</body>
-</html>
 

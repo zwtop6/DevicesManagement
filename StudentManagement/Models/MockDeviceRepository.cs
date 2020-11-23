@@ -20,6 +20,11 @@ namespace DeviceManagement.Models
             };
         }
 
+        public IEnumerable<Device> GetAllDevices()
+        {
+            return _devicesList;
+        }
+
         public Device GetDevice(int id)
         {
             return _devicesList.FirstOrDefault(a => a.Id == id);

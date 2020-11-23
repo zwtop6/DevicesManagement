@@ -1,0 +1,35 @@
+﻿@model IEnumerable<DeviceManagement.Models.Device>
+
+@{
+    ViewBag.Title = "设备列表页面";
+}
+
+<table>
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>设备号</th>
+            <th>设备类型</th>
+            <th>所在城市</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var device in Model)
+        {
+            <tr>
+                <td>
+                    @device.Id
+                </td>
+                <td>
+                    @device.Name
+                </td>
+                <td>
+                    @device.ClassName
+                </td>
+                <td>
+                    @device.City
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
