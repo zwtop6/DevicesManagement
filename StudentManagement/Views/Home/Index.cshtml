@@ -4,32 +4,20 @@
     ViewBag.Title = "设备列表页面";
 }
 
-<table>
-    <thead>
-        <tr>
-            <th>ID</th>
-            <th>设备号</th>
-            <th>设备类型</th>
-            <th>所在城市</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var device in Model)
-        {
-            <tr>
-                <td>
-                    @device.Id
-                </td>
-                <td>
-                    @device.Name
-                </td>
-                <td>
-                    @device.ClassName
-                </td>
-                <td>
-                    @device.City
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+<div class="card-deck">
+    @foreach (var device in Model)
+    {
+        <div class="card m-3">
+            <div class="card-header">
+                <h3>@device.Name</h3>
+            </div>
+            <img class="card-img-top" src="~/images/image1.jpg" />
+            <div class="card-footer text-center">
+                <a href="#" class="btn btn-primary">查看</a>
+                <a href="#" class="btn btn-primary">编辑</a>
+                <a href="#" class="btn btn-danger">删除</a>
+            </div>
+        </div>
+    }
+</div>
+

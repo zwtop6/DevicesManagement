@@ -25,7 +25,7 @@ namespace DeviceManagement.Controllers
             return View(model);
         }
 
-        public IActionResult Details(int id)
+        public IActionResult Details(int? id)
         {
             Device model = _deviceRepository.GetDevice(1);
 
@@ -54,7 +54,7 @@ namespace DeviceManagement.Controllers
 
             HomeDetailsViewModels homeDetailsViewModels = new HomeDetailsViewModels
             {
-                Device = _deviceRepository.GetDevice(id),
+                Device = _deviceRepository.GetDevice(id ?? 1),
                 PageTitle = "设备信息",
             };
 
