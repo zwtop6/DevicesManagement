@@ -10,5 +10,7 @@ namespace DeviceManagement.Models
         Device GetDevice(int id);
 
         public IEnumerable<Device> GetAllDevices();
+
+        public Device Add(Device device);
     }
 }

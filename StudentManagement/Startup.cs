@@ -33,6 +33,10 @@ namespace DeviceManagement
             services.AddMvc(Options => Options.EnableEndpointRouting = false).AddXmlSerializerFormatters(); ;
 
             //依赖注入容器注册服务，建立关联
+            //服务类型|同一个Http请求范围|横跨多个不同Http请求
+            //Scoped Service|同一个实例|新实例
+            //Transient Service|新实例|新实例
+            //Singleton Service|同一个实例|同一个实例
             services.AddSingleton<IDeviceRepository, MockDeviceRepository>();
 
         }

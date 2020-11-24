@@ -60,5 +60,25 @@ namespace DeviceManagement.Controllers
 
             return View(homeDetailsViewModels);
         }
+
+        [HttpGet]
+        public IActionResult Create()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult Create(Device device)
+        {
+            if (ModelState.IsValid)
+            {
+                Device newDevice = _deviceRepository.Add(device);
+
+                return RedirectToAction("Details", new { id = newDevice.Id });
+            }
+
+            return View();
+        }
+
     }
 }
