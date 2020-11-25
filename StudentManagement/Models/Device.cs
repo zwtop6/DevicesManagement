@@ -24,5 +24,8 @@ namespace DeviceManagement.Models
         [Display(Name = "城市")]
         public string City { get; set; }
 
+        public string PhotoPath { get; set; }
+
+
     }
 }

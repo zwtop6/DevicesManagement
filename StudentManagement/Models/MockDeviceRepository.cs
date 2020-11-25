@@ -27,6 +27,18 @@ namespace DeviceManagement.Models
             return device;
         }
 
+        public Device Delete(int id)
+        {
+            Device device = _devicesList.FirstOrDefault(s => s.Id == id);
+
+            if (device != null)
+            {
+                _devicesList.Remove(device);
+            }
+
+            return device;
+        }
+
         public IEnumerable<Device> GetAllDevices()
         {
             return _devicesList;
@@ -35,6 +47,20 @@ namespace DeviceManagement.Models
         public Device GetDevice(int id)
         {
             return _devicesList.FirstOrDefault(a => a.Id == id);
+        }
+
+        public Device Update(Device newdevice)
+        {
+            Device device = _devicesList.FirstOrDefault(s => s.Id == newdevice.Id);
+
+            if (device != null)
+            {
+                device.Name = newdevice.Name;
+                device.ClassName = newdevice.ClassName;
+                device.City = newdevice.City;
+            }
+
+            return device;
         }
     }
 }

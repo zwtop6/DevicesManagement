@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -27,6 +28,10 @@ namespace DeviceManagement
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddDbContextPool<AppDbContext>(
+                options => options.UseSqlServer(_configuration.GetConnectionString("DeviceDBConnection"))
+                );
+
             //MVC Core 只包含了核心的MVC功能
             //MVC 包含了依赖于MVC Core 以及相关的第三方常用的服务和方法
             //services.AddMvcCore();
@@ -37,7 +42,7 @@ namespace DeviceManagement
             //Scoped Service|同一个实例|新实例
             //Transient Service|新实例|新实例
             //Singleton Service|同一个实例|同一个实例
-            services.AddSingleton<IDeviceRepository, MockDeviceRepository>();
+            services.AddScoped<IDeviceRepository, SQLDeviceRepository>();
 
         }
 
