@@ -1,14 +1,18 @@
-﻿@model DeviceCreateViewModel
-@inject IDeviceRepository _deviceRepository
+﻿@model DeviceEditViewModel
 
 @{
-    ViewBag.Title = "创建设备信息";
+    ViewBag.Title = "编辑设备信息";
+
+    //获取当前设备的照片信息路径
+    var photoPath = "~/images/" + (Model.ExistingPhotoPath ?? "image1.jpg");
 }
 
-<form enctype="multipart/form-data" asp-controller="home" asp-action="create" method="post" class="mt-3">
+<form enctype="multipart/form-data" asp-controller="home" asp-action="edit" method="post" class="mt-3">
 
     <div asp-validation-summary="All" class="text-danger"></div>
 
+    <input hidden asp-for="Id" />
+    <input hidden asp-for="ExistingPhotoPath" />
 
     <div class="form-group row">
         <label asp-for="Name" class="col-sm-2 col-form-label"></label>
@@ -46,18 +50,17 @@
         </div>
     </div>
 
-    <div class="form-group row">
-        <div class="col-sm-10">
-            <button type="submit" class="btn btn-primary">创建</button>
-        </div>
-
+    <div class="form-group row row col-sm-4 offset-4">
+        <img class="imagesThumbnail" src="@photoPath" asp-append-version="true" />
     </div>
 
     <div class="form-group row">
         <div class="col-sm-10">
-            设备信息总数=@_deviceRepository.GetAllDevices().Count().ToString()
+            <button type="submit" class="btn btn-primary">更新</button>
+            <a asp-action="index" asp-controller="home" class="btn btn-primary">取消</a>
         </div>
     </div>
+
 
     @section Scripts{
 

@@ -55,6 +55,13 @@ namespace DeviceManagement
                 //可以抛出异常中间件，可以使用DeveloperExceptionPageOptions对其设置
                 app.UseDeveloperExceptionPage();
             }
+            else
+            {
+                //拦截异常
+                app.UseExceptionHandler("/Error");
+                //拦截404找不到的页面信息
+                app.UseStatusCodePagesWithReExecute("/Error/{0}");
+            }
 
             #region 默认和静态文件中间件
 

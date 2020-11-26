@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using DeviceManagement.Models;
 using DeviceManagement.ViewModels;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DeviceManagement.Controllers
@@ -11,11 +13,13 @@ namespace DeviceManagement.Controllers
     public class HomeController : Controller
     {
         private readonly IDeviceRepository _deviceRepository;
+        private readonly IWebHostEnvironment webHostEnvironment;
 
         //使用构造函数注入的方式注入IDeviceRepository
-        public HomeController(IDeviceRepository deviceRepository)
+        public HomeController(IDeviceRepository deviceRepository, IWebHostEnvironment webHostEnvironment)
         {
             _deviceRepository = deviceRepository;
+            this.webHostEnvironment = webHostEnvironment;
         }
 
         public IActionResult Index()
@@ -25,9 +29,16 @@ namespace DeviceManagement.Controllers
             return View(model);
         }
 
-        public IActionResult Details(int? id)
+        public IActionResult Details(int id)
         {
-            Device model = _deviceRepository.GetDevice(1);
+            Device model = _deviceRepository.GetDevice(id);
+
+            if (model == null)
+            {
+                Response.StatusCode = 404;
+
+                return View("DeviceNotFound", id);
+            }
 
             #region 弱类型
 
@@ -54,7 +65,7 @@ namespace DeviceManagement.Controllers
 
             HomeDetailsViewModels homeDetailsViewModels = new HomeDetailsViewModels
             {
-                Device = _deviceRepository.GetDevice(id ?? 1),
+                Device = model,
                 PageTitle = "设备信息",
             };
 
@@ -68,16 +79,113 @@ namespace DeviceManagement.Controllers
         }
 
         [HttpPost]
-        public IActionResult Create(Device device)
+        public IActionResult Create(DeviceCreateViewModel model)
         {
             if (ModelState.IsValid)
             {
-                Device newDevice = _deviceRepository.Add(device);
+                Device newDevice = new Device
+                {
+                    Name = model.Name,
+                    ClassName = model.ClassName,
+                    City = model.City,
+                    PhotoPath = ProcessUploadedFile(model),
+                };
 
+                _deviceRepository.Add(newDevice);
                 return RedirectToAction("Details", new { id = newDevice.Id });
+
             }
 
             return View();
+        }
+
+        [HttpGet]
+        public ViewResult Edit(int id)
+        {
+            Device device = _deviceRepository.GetDevice(id);
+
+            if (device != null)
+            {
+                DeviceEditViewModel deviceEditViewModel = new DeviceEditViewModel
+                {
+                    Id = device.Id,
+                    Name = device.Name,
+                    ClassName = device.ClassName,
+                    City = device.City,
+                    ExistingPhotoPath = device.PhotoPath
+                };
+
+                return View(deviceEditViewModel);
+            }
+
+            throw new Exception("查询不到这个设备信息");
+        }
+
+        [HttpPost]
+        public IActionResult Edit(DeviceEditViewModel model)
+        {
+            //检查提供的数据是否有效，如果没有通过验证，需要重新编辑学生信息
+            //这样用户就可以更正并重新提交编辑表单
+            if (ModelState.IsValid)
+            {
+                Device device = _deviceRepository.GetDevice(model.Id);
+
+                device.Name = model.Name;
+                device.ClassName = model.ClassName;
+                device.City = model.City;
+
+                if (model.Photos.Count > 0)
+                {
+                    if (model.ExistingPhotoPath != null)
+                    {
+                        string filePath = Path.Combine(webHostEnvironment.WebRootPath, "images", model.ExistingPhotoPath);
+
+                        System.IO.File.Delete(filePath);
+
+                    }
+
+                    device.PhotoPath = ProcessUploadedFile(model);
+                }
+
+                Device updateDevice = _deviceRepository.Update(device);
+
+                return RedirectToAction("Index");
+            }
+
+            return View(model);
+        }
+
+        /// <summary>
+        /// 将照片保存到指定的路径中，并返回唯一的路径名
+        /// </summary>
+        /// <returns></returns>
+        private string ProcessUploadedFile(DeviceCreateViewModel model)
+        {
+            string uniqueFileName = null;
+
+            if (model.Photos.Count > 0)
+            {
+                foreach (var photo in model.Photos)
+                {
+                    //必须将图像上传到wwwroot中的images文件夹
+                    //而要获取wwwroot文件夹的路径，我们需要注入ASP.Net Core提供的webHostEnvironment.WebRootPath
+                    string uploadsFolder = Path.Combine(webHostEnvironment.WebRootPath, "images");
+
+                    //为了确保文件名是唯一的，我们在文件名后附加一个新的GUID值和一个下划线
+                    uniqueFileName = Guid.NewGuid().ToString() + "_" + photo.FileName;
+                    string filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                    //因为使用了非托管资源，所以需要手动进行释放
+                    using (var fileStream = new FileStream(filePath, FileMode.Create))
+                    {
+                        //使用IFormFile接口提供的CopyTo()方法见文件赋值到wwwroot/images文件夹
+                        photo.CopyTo(fileStream);
+                    }
+
+                }
+            }
+
+            return uniqueFileName;
         }
 
     }
