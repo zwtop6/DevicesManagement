@@ -7,6 +7,7 @@ using DeviceManagement.Models;
 using DeviceManagement.ViewModels;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 namespace DeviceManagement.Controllers
 {
@@ -14,12 +15,15 @@ namespace DeviceManagement.Controllers
     {
         private readonly IDeviceRepository _deviceRepository;
         private readonly IWebHostEnvironment webHostEnvironment;
+        private readonly ILogger logger;
 
         //使用构造函数注入的方式注入IDeviceRepository
-        public HomeController(IDeviceRepository deviceRepository, IWebHostEnvironment webHostEnvironment)
+        public HomeController(IDeviceRepository deviceRepository, IWebHostEnvironment webHostEnvironment, ILogger<HomeController> logger)
         {
             _deviceRepository = deviceRepository;
             this.webHostEnvironment = webHostEnvironment;
+            this.logger = logger;
+
         }
 
         public IActionResult Index()

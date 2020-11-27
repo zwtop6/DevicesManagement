@@ -2,10 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using DeviceManagement.Middlewares;
 using DeviceManagement.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -31,6 +33,19 @@ namespace DeviceManagement
             services.AddDbContextPool<AppDbContext>(
                 options => options.UseSqlServer(_configuration.GetConnectionString("DeviceDBConnection"))
                 );
+
+            //身份认证配置
+            services.Configure<IdentityOptions>(options =>
+                {
+                    options.Password.RequiredLength = 8;
+                    options.Password.RequireNonAlphanumeric = false;
+                    options.Password.RequireUppercase = false;
+                });
+
+            //身份认证
+            services.AddIdentity<IdentityUser, IdentityRole>()
+                .AddErrorDescriber<CustomIdentityErrorDescriber>()
+                .AddEntityFrameworkStores<AppDbContext>();
 
             //MVC Core 只包含了核心的MVC功能
             //MVC 包含了依赖于MVC Core 以及相关的第三方常用的服务和方法
@@ -91,8 +106,11 @@ namespace DeviceManagement
 
             app.UseStaticFiles();
 
+            app.UseAuthentication();
+
             app.UseMvcWithDefaultRoute();
 
+            //------------------------
             app.UseRouting();
 
             app.UseEndpoints(endpoints =>

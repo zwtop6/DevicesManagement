@@ -55,7 +55,6 @@ namespace DeviceManagement.Controllers
 
             logger.LogError($"路径{exceptionHandlerPathFeature.Path},产生了一个错误{exceptionHandlerPathFeature.Error}");
 
-
             //ViewBag.ExceptionPath = exceptionHandlerPathFeature.Path;
             //ViewBag.ExceptionMessage = exceptionHandlerPathFeature.Error.Message;
             //ViewBag.StackTrace = exceptionHandlerPathFeature.Error.StackTrace;
