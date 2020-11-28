@@ -19,6 +19,8 @@ namespace DeviceManagement.Controllers
             this.signInManager = signInManager;
         }
 
+        #region 注册
+
         [HttpGet]
         public IActionResult Register()
         {
@@ -60,5 +62,49 @@ namespace DeviceManagement.Controllers
 
             return View(model);
         }
+
+        #endregion
+
+        #region 登录
+
+        [HttpGet]
+        public IActionResult Login()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Login(LoginViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var result = await signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, false);
+
+                if (result.Succeeded)
+                {
+                    return RedirectToAction("Index", "home");
+                }
+
+                ModelState.AddModelError(string.Empty, "登录失败，请重试");
+            }
+
+            return View(model);
+        }
+
+        #endregion
+
+
+        #region 注销
+
+        [HttpPost]
+        public async Task<IActionResult> Logout()
+        {
+            await signInManager.SignOutAsync();
+
+            return RedirectToAction("index", "home");
+        }
+
+        #endregion
+
     }
 }
