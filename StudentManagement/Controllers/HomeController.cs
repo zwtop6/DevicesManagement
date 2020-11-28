@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using DeviceManagement.Models;
 using DeviceManagement.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;

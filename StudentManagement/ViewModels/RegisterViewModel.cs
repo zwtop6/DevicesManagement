@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -11,6 +12,7 @@ namespace DeviceManagement.ViewModels
         [Required]
         [EmailAddress]
         [Display(Name = "邮箱账号")]
+        [Remote(action: "IsEmailInUse", controller: "Account")]
         public string Email { get; set; }
 
         [Required]
@@ -20,8 +22,11 @@ namespace DeviceManagement.ViewModels
 
         [Display(Name = "确认密码")]
         [DataType(DataType.Password)]
-        [Compare("Password", ErrorMessage = "密码与取人密码不一致，请重新输入")]
+        [Compare("Password", ErrorMessage = "密码与确认密码不一致，请重新输入")]
         public string ConfirmPassword { get; set; }
+
+        [Display(Name = "城市")]
+        public string City { get; set; }
 
     }
 }

@@ -15,7 +15,7 @@
 <body>
     <div class="container">
         @using Microsoft.AspNetCore.Identity
-        @inject SignInManager<IdentityUser> SignInManager
+        @inject SignInManager<ApplicationUser> SignInManager
 
         <nav class="navbar navbar-expand-sm bg-dark navbar-dark">
             <a class="navbar-brand" asp-controller="home" asp-action="index">
@@ -63,8 +63,11 @@
         @RenderBody()
     </div>
 
-    <script src="~/lib/jquery.js"></script>
-    <script src="~/lib/twitter-bootstrap/js/bootstrap.js"></script>
+    <script src="~/lib/jquery.js" asp-append-version="true"></script>
+    <script src="~/lib/jquery-validate/jquery.validate.js" asp-append-version="true"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.js" asp-append-version="true"></script>
+   
+    <script src="~/lib/twitter-bootstrap/js/bootstrap.js" asp-append-version="true"></script>
 
     @RenderSection("Scripts", required: false)
 </body>

@@ -4,11 +4,13 @@ using System.Linq;
 using System.Threading.Tasks;
 using DeviceManagement.Middlewares;
 using DeviceManagement.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -43,14 +45,21 @@ namespace DeviceManagement
                 });
 
             //身份认证
-            services.AddIdentity<IdentityUser, IdentityRole>()
+            services.AddIdentity<ApplicationUser, IdentityRole>()
                 .AddErrorDescriber<CustomIdentityErrorDescriber>()
                 .AddEntityFrameworkStores<AppDbContext>();
 
             //MVC Core 只包含了核心的MVC功能
             //MVC 包含了依赖于MVC Core 以及相关的第三方常用的服务和方法
             //services.AddMvcCore();
-            services.AddMvc(Options => Options.EnableEndpointRouting = false).AddXmlSerializerFormatters(); ;
+            services.AddMvc(Options =>
+            {
+                Options.EnableEndpointRouting = false;
+
+                var policy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build();
+                Options.Filters.Add(new AuthorizeFilter(policy));
+
+            }).AddXmlSerializerFormatters(); ;
 
             //依赖注入容器注册服务，建立关联
             //服务类型|同一个Http请求范围|横跨多个不同Http请求
