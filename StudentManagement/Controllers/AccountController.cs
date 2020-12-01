@@ -22,6 +22,20 @@ namespace DeviceManagement.Controllers
             this.signInManager = signInManager;
         }
 
+        [HttpGet]
+        [AllowAnonymous]
+        public IActionResult AccessDenied()
+        {
+            return View();
+        }
+
+        [HttpGet]
+        [AllowAnonymous]
+        public IActionResult Fangyu()
+        {
+            return View();
+        }
+
         #region 注册
 
         [HttpGet]
@@ -36,7 +50,7 @@ namespace DeviceManagement.Controllers
         {
             if (ModelState.IsValid)
             {
-                //将数据从RegisterViewModel复制到IdentityUser
+                //将数据从RegisterViewModel赋值到ApplicationUser
                 var user = new ApplicationUser
                 {
                     UserName = model.Email,
@@ -51,6 +65,14 @@ namespace DeviceManagement.Controllers
                 //并重定向到home controller的索引操作
                 if (result.Succeeded)
                 {
+                    //如果用户已登录并属于Admin角色
+                    //那么就是Admin正在创建新用户
+                    //所以重定向Admin用户对ListRoles的试图列表
+                    if (signInManager.IsSignedIn(User) && User.IsInRole("Admin"))
+                    {
+                        return RedirectToAction("ListUsers","Admin");
+                    }
+
                     await signInManager.SignInAsync(user, isPersistent: false);
 
                     return RedirectToAction("Index", "Home");

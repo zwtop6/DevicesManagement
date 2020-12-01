@@ -4,6 +4,8 @@
     ViewBag.Title = "编辑角色";
 }
 
+<h1>编辑角色</h1>
+
 <form method="post" asp-action="EditRole">
 
     <div class="form-group row">
@@ -26,7 +28,7 @@
     <div class="form-group row">
         <div class="col-sm-10">
             <button type="submit" class="btn btn-primary">更新</button>
-            <a class="btn btn-primary">取消</a>
+            <a class="btn btn-primary" asp-action="ListRoles">取消</a>
         </div>
     </div>
 
@@ -50,8 +52,7 @@
         </div>
 
         <div class="card-footer">
-            <a href="#" class="btn btn-primary">添加用户</a>
-            <a href="#" class="btn btn-danger">删除用户</a>
+            <a asp-controller="Admin" asp-action="EditUsersInRole" asp-route-roleId="@Model.Id" class="btn btn-outline-primary">从角色中添加或删除用户</a>
         </div>
     </div>
 

@@ -44,6 +44,12 @@ namespace DeviceManagement
                     options.Password.RequireUppercase = false;
                 });
 
+            //自定义拒绝访问路径
+            services.ConfigureApplicationCookie(options =>
+            {
+                options.AccessDeniedPath = "/Account/Fangyu";
+            });
+
             //身份认证
             services.AddIdentity<ApplicationUser, IdentityRole>()
                 .AddErrorDescriber<CustomIdentityErrorDescriber>()
