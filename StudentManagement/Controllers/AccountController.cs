@@ -163,7 +163,9 @@ namespace DeviceManagement.Controllers
                 return Json($"邮箱：{email}已经被注册使用了。");
             }
         }
+
         #endregion
+
 
     }
 }

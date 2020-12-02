@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 
 namespace DeviceManagement.Controllers
 {
+    [AllowAnonymous]
     public class ErrorController : Controller
     {
         private readonly ILogger<ErrorController> logger;
@@ -47,12 +48,13 @@ namespace DeviceManagement.Controllers
             return View("NotFound");
         }
 
-        [AllowAnonymous]
         [Route("Error")]
         public IActionResult Error()
         {
+            //获取异常详情信息
             var exceptionHandlerPathFeature = HttpContext.Features.Get<IExceptionHandlerPathFeature>();
 
+            //LogError()方法将异常记录作为日志中的错误类别记录
             logger.LogError($"路径{exceptionHandlerPathFeature.Path},产生了一个错误{exceptionHandlerPathFeature.Error}");
 
             //ViewBag.ExceptionPath = exceptionHandlerPathFeature.Path;
