@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace DeviceManagement.ViewModels
@@ -11,7 +12,7 @@ namespace DeviceManagement.ViewModels
         public EditUserViewModel()
         {
             Roles = new List<string>();
-            Claims = new List<string>();
+            Claims = new List<Claim>();
         }
 
         public string Id { get; set; }
@@ -25,7 +26,7 @@ namespace DeviceManagement.ViewModels
 
         public IList<string> Roles { get; set; }
 
-        public List<string> Claims { get; set; }
+        public IList<Claim> Claims { get; set; }
 
         public string City { get; set; }
 

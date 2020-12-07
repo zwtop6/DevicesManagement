@@ -56,15 +56,27 @@ namespace DeviceManagement
                 .AddErrorDescriber<CustomIdentityErrorDescriber>()
                 .AddEntityFrameworkStores<AppDbContext>();
 
+            //声明授权
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("DeleteRolePolicy", policy => policy.RequireClaim("Delete Role"));
+                options.AddPolicy("EditRolePolicy", policy => policy.RequireClaim("Edit Role"));
+                //策略结合声明授权
+                options.AddPolicy("AdminRolePolicy", policy => policy.RequireRole("Admin"));
+                //策略结合多个角色进行授权
+                options.AddPolicy("SuperAdminPolicy", policy => policy.RequireRole("Admin", "User"));
+                
+            });
+
             //MVC Core 只包含了核心的MVC功能
             //MVC 包含了依赖于MVC Core 以及相关的第三方常用的服务和方法
             //services.AddMvcCore();
-            services.AddMvc(Options =>
+            services.AddMvc(options =>
             {
-                Options.EnableEndpointRouting = false;
+                options.EnableEndpointRouting = false;
 
                 var policy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build();
-                Options.Filters.Add(new AuthorizeFilter(policy));
+                options.Filters.Add(new AuthorizeFilter(policy));
 
             }).AddXmlSerializerFormatters(); ;
 
