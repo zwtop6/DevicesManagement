@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using DeviceManagement.Middlewares;
 using DeviceManagement.Models;
+using DeviceManagement.Security;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -16,6 +17,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
+using StudentManagement.Data;
 
 namespace DeviceManagement
 {
@@ -39,34 +41,59 @@ namespace DeviceManagement
 
             //身份认证配置
             services.Configure<IdentityOptions>(options =>
-                {
-                    options.Password.RequiredLength = 8;
-                    options.Password.RequireNonAlphanumeric = false;
-                    options.Password.RequireUppercase = false;
-                });
+            {
+                options.Password.RequiredLength = 5;
+                options.Password.RequireNonAlphanumeric = false;
+                options.Password.RequireUppercase = false;
 
-            //自定义拒绝访问路径
+                options.SignIn.RequireConfirmedEmail = true;
+            });
+
+
             services.ConfigureApplicationCookie(options =>
             {
-                options.AccessDeniedPath = "/Account/Fangyu";
+                //修改拒绝访问的路由地址
+                options.AccessDeniedPath = "/Account/AccessDenied";
+                ////修改登录地址的路由
+                //options.LoginPath = new PathString("/Admin/Login");
+                ////修改注销地址的路由
+                //options.LogoutPath = new PathString("/Admin/LogOut");
+                ////统一系统全局的Cookie名称
+                //options.Cookie.Name = "MockDeviceCookieName";
+                ////登录用户Cookie的有效期
+                //options.ExpireTimeSpan = TimeSpan.FromMinutes(60);
+                ////是否对Cookie启用滑动过期时间
+                //options.SlidingExpiration = true;
             });
 
             //身份认证
             services.AddIdentity<ApplicationUser, IdentityRole>()
                 .AddErrorDescriber<CustomIdentityErrorDescriber>()
-                .AddEntityFrameworkStores<AppDbContext>();
+                .AddEntityFrameworkStores<AppDbContext>()
+                .AddDefaultTokenProviders();
+
 
             //声明授权
             services.AddAuthorization(options =>
             {
                 options.AddPolicy("DeleteRolePolicy", policy => policy.RequireClaim("Delete Role"));
-                options.AddPolicy("EditRolePolicy", policy => policy.RequireClaim("Edit Role"));
+
                 //策略结合声明授权
                 options.AddPolicy("AdminRolePolicy", policy => policy.RequireRole("Admin"));
                 //策略结合多个角色进行授权
                 options.AddPolicy("SuperAdminPolicy", policy => policy.RequireRole("Admin", "User"));
-                
+
+                //options.AddPolicy("EditRolePolicy", policy => policy.RequireClaim("Edit Role", "true"));
+                //options.AddPolicy("EditRolePolicy", policy => policy.RequireAssertion(context => AuthorizeAccess(context)));
+                options.AddPolicy("EditRolePolicy", policy => policy.AddRequirements(new ManageAdminRolesAndClaimsRequirement()));
+                options.InvokeHandlersAfterFailure = false;
             });
+
+            //services.AddAuthentication().AddMicrosoftAccount(options =>
+            //{
+            //    options.ClientId = _configuration[""];
+            //    options.ClientSecret = "";
+            //});
 
             //MVC Core 只包含了核心的MVC功能
             //MVC 包含了依赖于MVC Core 以及相关的第三方常用的服务和方法
@@ -136,6 +163,8 @@ namespace DeviceManagement
 
             app.UseAuthentication();
 
+            app.UseDataInitializer();
+
             app.UseMvcWithDefaultRoute();
 
             //------------------------
@@ -151,6 +180,14 @@ namespace DeviceManagement
                     await context.Response.WriteAsync("Hello World");
                 });
             });
+        }
+
+        //授权访问
+        private bool AuthorizeAccess(AuthorizationHandlerContext context)
+        {
+            return context.User.IsInRole("Admin") &&
+                    context.User.HasClaim(claim => claim.Type == "Edit Role" && claim.Value == "true") ||
+                    context.User.IsInRole("Super Admin");
         }
     }
 }

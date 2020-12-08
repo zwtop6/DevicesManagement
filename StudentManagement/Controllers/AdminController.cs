@@ -378,6 +378,8 @@ namespace DeviceManagement.Controllers
             }
         }
 
+        #region 管理用户角色
+
         [HttpGet]
         public async Task<IActionResult> ManageUserRoles(string userId)
         {
@@ -454,6 +456,8 @@ namespace DeviceManagement.Controllers
             return RedirectToAction("EditUser", new { Id = userId });
         }
 
+        #endregion
+
         #region 管理用户声明
 
         [HttpGet]
@@ -518,7 +522,7 @@ namespace DeviceManagement.Controllers
 
             // 添加界面上选中的所有声明信息
             result = await userManager.AddClaimsAsync(user,
-                model.Claims.Where(c => c.IsSelected).Select(c => new Claim(c.ClaimType, c.ClaimType)));
+                model.Claims.Where(c => c.IsSelected).Select(c => new Claim(c.ClaimType, c.IsSelected ? "true" : "false")));
             if (!result.Succeeded)
             {
                 ModelState.AddModelError("", "无法向用户添加选定的声明");
@@ -528,7 +532,18 @@ namespace DeviceManagement.Controllers
             return RedirectToAction("EditUser", new { Id = model.UserId });
         }
 
-        #endregion 管理用户声明
+        #endregion
+
+        #endregion
+
+        #region 拒绝访问
+
+        [HttpGet]
+        [AllowAnonymous]
+        public IActionResult AccessDenied()
+        {
+            return View();
+        }
 
         #endregion
 

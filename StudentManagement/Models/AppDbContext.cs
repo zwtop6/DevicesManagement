@@ -26,7 +26,7 @@ namespace DeviceManagement.Models
                 foreignKey.DeleteBehavior = DeleteBehavior.Restrict;
             }
 
-            modelBuilder.Seed();
+            //modelBuilder.Seed();
         }
 
     }
