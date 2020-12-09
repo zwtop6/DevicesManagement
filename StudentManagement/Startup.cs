@@ -47,6 +47,15 @@ namespace DeviceManagement
                 options.Password.RequireUppercase = false;
 
                 options.SignIn.RequireConfirmedEmail = true;
+
+                options.Lockout.MaxFailedAccessAttempts = 6;
+                options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(1);
+            });
+
+            //Token…Ë÷√
+            services.Configure<DataProtectionTokenProviderOptions>(Options =>
+            {
+                Options.TokenLifespan = TimeSpan.FromMinutes(30);
             });
 
 

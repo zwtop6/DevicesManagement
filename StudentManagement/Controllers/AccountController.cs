@@ -147,6 +147,11 @@ namespace DeviceManagement.Controllers
                     }
                 }
 
+                if (result.IsLockedOut)
+                {
+                    return View("AccountLocked");
+                }
+
                 ModelState.AddModelError(string.Empty, "登录失败，请重试");
             }
 
@@ -258,152 +263,147 @@ namespace DeviceManagement.Controllers
 
         #endregion 激活邮箱
 
-        //#region 找回密码& 重置密码
+        #region 找回密码 & 重置密码
 
-        //[HttpGet]
-        //public IActionResult ForgotPassword()
-        //{
-        //    return View();
-        //}
+        [HttpGet]
+        public IActionResult ForgotPassword()
+        {
+            return View();
+        }
 
-        //[HttpPost]
-        //public async Task<IActionResult> ForgotPassword(EmailAddressViewModel model)
-        //{
-        //    if (ModelState.IsValid)
-        //    {
-        //        // 通过邮件地址查询用户地址
-        //        var user = await userManager.FindByEmailAsync(model.Email);
-        //        // 如果找到了用户并且确认了电子邮件
-        //        if (user != null && await userManager.IsEmailConfirmedAsync(user))
-        //        {
-        //            //生成重置密码令牌
-        //            var token = await userManager.GeneratePasswordResetTokenAsync(user);
+        [HttpPost]
+        public async Task<IActionResult> ForgotPassword(EmailAddressViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                // 通过邮件地址查询用户地址
+                var user = await userManager.FindByEmailAsync(model.Email);
+                // 如果找到了用户并且确认了电子邮件
+                if (user != null && await userManager.IsEmailConfirmedAsync(user))
+                {
+                    //生成重置密码令牌
+                    var token = await userManager.GeneratePasswordResetTokenAsync(user);
 
-        //            // 生成密码重置链接
-        //            var passwordResetLink = Url.Action("ResetPassword", "Account",
-        //                    new { email = model.Email, token = token }, Request.Scheme);
+                    // 生成密码重置链接
+                    var passwordResetLink = Url.Action("ResetPassword", "Account",
+                            new { email = model.Email, token = token }, Request.Scheme);
 
-        //            // 将密码重置链接记录到文件中
-        //            logger.Log(LogLevel.Warning, passwordResetLink);
-        //            //重定向用户到忘记密码确认视图
-        //            return View("ForgotPasswordConfirmation");
-        //        }
+                    // 将密码重置链接记录到文件中
+                    logger.Log(LogLevel.Warning, passwordResetLink);
+                    //重定向用户到忘记密码确认视图
+                    return View("ForgotPasswordConfirmation");
+                }
 
-        //        // 为了避免帐户穷举和暴力攻击，所以不进行用户不存在或邮箱未验证的提示
-        //        return View("ForgotPasswordConfirmation");
-        //    }
+                // 为了避免帐户穷举和暴力攻击，所以不进行用户不存在或邮箱未验证的提示
+                return View("ForgotPasswordConfirmation");
+            }
 
-        //    return View(model);
-        //}
+            return View(model);
+        }
 
-        //// 电子邮箱 重置密码的token  新密码 确认密码
+        [HttpGet]
+        public IActionResult ResetPassword(string token, string email)
+        {
+            //如果密码的token或者邮箱地址为空，用户有可能在试图篡改密码重置的URL
+            if (token == null || email == null)
+            {
+                ModelState.AddModelError("", "当前的密码重置令牌无效");
+            }
 
-        //[HttpGet]
-        //public IActionResult ResetPassword(string token, string email)
-        //{
-        //    //如果密码的token或者邮箱地址为空，用户有可能在试图篡改密码重置的URL
+            return View();
+        }
 
-        //    if (token == null || email == null)
-        //    {
-        //        ModelState.AddModelError("", "当前的密码重置令牌无效");
-        //    }
+        [HttpPost]
+        public async Task<IActionResult> ResetPassword(ResetPasswordViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                // 通过电子邮件查找用户
+                var user = await userManager.FindByEmailAsync(model.Email);
+                if (user != null)
+                {
+                    //重置用户密码
+                    var result = await userManager.ResetPasswordAsync(user, model.Token, model.Password);
+                    if (result.Succeeded)
+                    {
+                        //密码成功重置后，如果当前账户被锁定，则设置该账户锁定结束日期为当前UTC日期时间。
+                        //这样用户就可以用新密码登录系统。
+                        if (await userManager.IsLockedOutAsync(user))
+                        {
+                            await userManager.SetLockoutEndDateAsync(user, DateTimeOffset.UtcNow);
+                            //DateTimeOffset指是UTC时间即格林威治时间。
+                        }
+                        return View("ResetPasswordConfirmation");
+                    }
 
-        //    return View();
-        //}
+                    //告诉它验证不通过的错误信息
+                    foreach (var error in result.Errors)
+                    {
+                        ModelState.AddModelError("", error.Description);
+                    }
+                    return View(model);
+                }
 
-        //[HttpPost]
-        //public async Task<IActionResult> ResetPassword(ResetPasswordViewModel model)
-        //{
-        //    if (ModelState.IsValid)
-        //    {
-        //        // 通过电子邮件查找用户
-        //        var user = await userManager.FindByEmailAsync(model.Email);
-        //        if (user != null)
-        //        {
-        //            //重置用户密码
-        //            var result = await userManager.ResetPasswordAsync(user, model.Token, model.Password);
+                // 为了避免帐户穷举和暴力攻击，不要提示用户不存在
+                return View("ResetPasswordConfirmation");
+            }
+            // 如果模型验证未通过，则显示验证错误
+            return View(model);
+        }
 
-        //            if (result.Succeeded)
-        //            {
-        //                //密码成功重置后，如果当前账户被锁定，则设置该账户锁定结束日期为当前UTC日期时间。
-        //                //这样用户就可以用新密码登录系统。
-        //                if (await userManager.IsLockedOutAsync(user))
-        //                {
-        //                    await userManager.SetLockoutEndDateAsync(user, DateTimeOffset.UtcNow);
-        //                    //DateTimeOffset指是UTC时间即格林威治时间。
-        //                }
-        //                return View("ResetPasswordConfirmation");
-        //            }
+        #endregion 找回密码& 重置密码
 
-        //            //告诉它验证不通过的错误信息
-        //            foreach (var error in result.Errors)
-        //            {
-        //                ModelState.AddModelError("", error.Description);
-        //            }
-        //            return View(model);
-        //        }
+        #region 修改密码
+        [Authorize]
+        [HttpGet]
+        public async Task<IActionResult> ChangePassword()
+        {
+            var user = await userManager.GetUserAsync(User);
 
-        //        // 为了避免帐户穷举和暴力攻击，不要提示用户不存在
-        //        return View("ResetPasswordConfirmation");
-        //    }
-        //    // 如果模型验证未通过，则显示验证错误
-        //    return View(model);
-        //}
+            //判断当前用户是否拥有密码，如果没有重定向到添加密码视图
+            var userHasPassword = await userManager.HasPasswordAsync(user);
 
-        //#endregion 找回密码& 重置密码
+            if (!userHasPassword)
+            {
+                return RedirectToAction("AddPassword");
+            }
+            return View();
+        }
 
-        //#region 修改密码
-        //[Authorize]
-        //[HttpGet]
-        //public async Task<IActionResult> ChangePassword()
-        //{
-        //    var user = await userManager.GetUserAsync(User);
+        [Authorize]
+        [HttpPost]
+        public async Task<IActionResult> ChangePassword(ChangePasswordViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var user = await userManager.GetUserAsync(User);
+                if (user == null)
+                {
+                    return RedirectToAction("Login");
+                }
 
-        //    //判断当前用户是否拥有密码，如果没有重定向到添加密码视图
-        //    var userHasPassword = await userManager.HasPasswordAsync(user);
+                var result = await userManager.ChangePasswordAsync(user, model.CurrentPassword, model.ConfirmPassword);
+                //如果新密码不符合复杂性规则或当前密码不正确，我们需要将错误提示，返回到ChangePassword视图页面中
+                if (!result.Succeeded)
+                {
+                    foreach (var error in result.Errors)
+                    {
+                        ModelState.AddModelError(string.Empty, error.Description);
+                    }
+                    return View();
+                }
 
-        //    if (!userHasPassword)
-        //    {
-        //        return RedirectToAction("AddPassword");
-        //    }
-        //    return View();
-        //}
+                await signInManager.RefreshSignInAsync(user);
 
-        //[Authorize]
-        //[HttpPost]
-        //public async Task<IActionResult> ChangePassword(ChangePasswordViewModel model)
-        //{
-        //    if (ModelState.IsValid)
-        //    {
-        //        var user = await userManager.GetUserAsync(User);
-        //        if (user == null)
-        //        {
-        //            return RedirectToAction("Login");
-        //        }
+                return View("ChangePasswordConfirmation");
+            }
 
-        //        var result = await userManager.ChangePasswordAsync(user, model.CurrentPassword, model.ConfirmPassword);
+            return View(model);
+        }
 
-        //        //如果新密码不符合复杂性规则或当前密码不正确，我们需要将错误提示，返回到ChangePassword视图页面中
-        //        if (!result.Succeeded)
-        //        {
-        //            foreach (var error in result.Errors)
-        //            {
-        //                ModelState.AddModelError(string.Empty, error.Description);
-        //            }
-        //            return View();
-        //        }
+        #endregion 修改密码
 
-        //        await signInManager.RefreshSignInAsync(user);
-
-        //        return View("ChangePasswordConfirmation");
-        //    }
-
-        //    return View(model);
-        //}
-
-        //#endregion 修改密码
-
-        //#region 添加密码功能
+        //#region 添加密码功能(扩展登录）
 
         //[HttpGet]
         //public async Task<IActionResult> AddPassword()
