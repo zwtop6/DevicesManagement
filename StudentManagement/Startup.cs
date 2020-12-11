@@ -107,10 +107,8 @@ namespace DeviceManagement
             //MVC Core 只包含了核心的MVC功能
             //MVC 包含了依赖于MVC Core 以及相关的第三方常用的服务和方法
             //services.AddMvcCore();
-            services.AddMvc(options =>
+            services.AddControllersWithViews(options =>
             {
-                options.EnableEndpointRouting = false;
-
                 var policy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build();
                 options.Filters.Add(new AuthorizeFilter(policy));
 
@@ -122,6 +120,11 @@ namespace DeviceManagement
             //Transient Service|新实例|新实例
             //Singleton Service|同一个实例|同一个实例
             services.AddScoped<IDeviceRepository, SQLDeviceRepository>();
+
+            services.AddSingleton<IAuthorizationHandler, CanEditOnlyOtherAdminRolesAndClaimsHandler>();
+            services.AddSingleton<IAuthorizationHandler, SuperAdminHandler>();
+
+            //services.AddSingleton<DataProtectionPurposeStrings>();
 
         }
 
@@ -170,25 +173,25 @@ namespace DeviceManagement
 
             app.UseStaticFiles();
 
+            //身份认证中间件
             app.UseAuthentication();
+
+            app.UseRouting();
+
+            //身份认证(authentication)和授权(authorization)
+            app.UseAuthorization();
 
             app.UseDataInitializer();
 
-            app.UseMvcWithDefaultRoute();
+            //app.UseMvcWithDefaultRoute();
 
-            //------------------------
-            app.UseRouting();
-
-            app.UseEndpoints(endpoints =>
+            // UseEndpoints 是一个可以处理跨不同中间件系统（如MVC、 Razor Pages、 Blazor、 SignalR和gRPC）的路由系统。
+            //通过终结点路由可以使端点相互协作，并使系统比没有相互对话的终端中间件更全面。
+            app.UseEndpoints(routes =>
             {
-                endpoints.MapGet("/", async context =>
-                {
-                    //正确显示中文
-                    //context.Response.ContentType = "text/plain;charset=utf-8";
-
-                    await context.Response.WriteAsync("Hello World");
-                });
+                routes.MapControllerRoute("default", pattern: "{controller=Home}/{action=Index}/{id?}");
             });
+
         }
 
         //授权访问
