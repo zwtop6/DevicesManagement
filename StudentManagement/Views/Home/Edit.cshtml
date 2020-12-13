@@ -4,7 +4,7 @@
     ViewBag.Title = "编辑设备信息";
 
     //获取当前设备的照片信息路径
-    var photoPath = "~/images/" + (Model.ExistingPhotoPath ?? "image1.jpg");
+    var photoPath = "~/images/" + (Model.ExistingPhotoPath ?? "bigpm1.jpg");
 }
 
 <form enctype="multipart/form-data" asp-controller="home" asp-action="edit" method="post" class="mt-3">
