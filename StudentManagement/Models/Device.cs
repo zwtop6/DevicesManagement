@@ -28,5 +28,8 @@ namespace DeviceManagement.Models
 
         public string LogPath { get; set; }
 
+        [Display(Name = "健康状态")]
+        public HealthStatusEnum HealthStatus { get; set; }
+
     }
 }

@@ -117,7 +117,9 @@ namespace DeviceManagement.Controllers
                     Name = device.Name,
                     ClassName = device.ClassName,
                     City = device.City,
-                    ExistingPhotoPath = device.PhotoPath
+                    ExistingPhotoPath = device.PhotoPath,
+                    ExistingLogsPath = device.LogPath,
+                    HealthStatus = device.HealthStatus,
                 };
 
                 return View(deviceEditViewModel);
@@ -138,6 +140,7 @@ namespace DeviceManagement.Controllers
                 device.Name = model.Name;
                 device.ClassName = model.ClassName;
                 device.City = model.City;
+                device.HealthStatus = model.HealthStatus;
 
                 if (model.Photos?.Count > 0)
                 {

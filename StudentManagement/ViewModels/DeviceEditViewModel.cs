@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using DeviceManagement.Models;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -18,6 +19,9 @@ namespace DeviceManagement.ViewModels
 
         [Display(Name = "日志")]
         public List<IFormFile> Logs { get; set; }
+
+        [Display(Name = "健康状态")]
+        public HealthStatusEnum HealthStatus { get; set; }
 
 
     }

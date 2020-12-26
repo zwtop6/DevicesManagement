@@ -84,15 +84,12 @@ namespace DeviceManagement.Controllers
                     StringBuilder strB = new StringBuilder();
                     strB.AppendLine("在你登入系统前,我们已经给您发了一份邮件，需要您先进行邮件验证，点击确认链接即可完成。");
                     strB.AppendLine("链接为：");
-                    strB.AppendLine(confirmationLink.ToString());
 
-                    ViewBag.ErrorTitle = "注册成功";
-                    ViewBag.ErrorMessage = strB.ToString();
+                    ViewBag.LinkTitle = "注册成功";
+                    ViewBag.LinkMessage = strB.ToString();
+                    ViewBag.LinkPath = confirmationLink.ToString();
 
-                    return View("Error");
-
-                    //await signInManager.SignInAsync(user, isPersistent: false);
-                    //return RedirectToAction("Index", "Home");
+                    return View("Link");
                 }
 
                 //如果有任何错误，将它们添加到ModelState对象中
@@ -252,10 +249,18 @@ namespace DeviceManagement.Controllers
                         var confirmationLink = Url.Action("ConfirmEmail", "Account", new { userId = user.Id, token = token }, Request.Scheme);
 
                         logger.Log(LogLevel.Warning, confirmationLink);
-                        ViewBag.Message = "如果你在我们系统有注册账户，我们已经发了邮件到您的邮箱中，请前往邮箱激活您的用户。";
+                        //ViewBag.Message = "如果你在我们系统有注册账户，我们已经发了邮件到您的邮箱中，请前往邮箱激活您的用户。";
+
+                        StringBuilder strB = new StringBuilder();
+                        strB.AppendLine("如果你在我们系统有注册账户，我们已经发了邮件到您的邮箱中，请前往邮箱激活您的用户。");
+                        strB.AppendLine("链接为：");
+
+                        ViewBag.LinkTitle = "激活邮箱";
+                        ViewBag.LinkMessage = strB.ToString();
+                        ViewBag.LinkPath = confirmationLink.ToString();
 
                         //重定向用户到忘记密码确认视图
-                        return View("ActivateUserEmailConfirmation", ViewBag.Message);
+                        return View("Link");
                     }
                 }
 
