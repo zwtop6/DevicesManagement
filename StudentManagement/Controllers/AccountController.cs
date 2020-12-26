@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace DeviceManagement.Controllers
@@ -80,8 +81,14 @@ namespace DeviceManagement.Controllers
                         return RedirectToAction("ListUsers", "Admin");
                     }
 
+                    StringBuilder strB = new StringBuilder();
+                    strB.AppendLine("在你登入系统前,我们已经给您发了一份邮件，需要您先进行邮件验证，点击确认链接即可完成。");
+                    strB.AppendLine("链接为：");
+                    strB.AppendLine(confirmationLink.ToString());
+
                     ViewBag.ErrorTitle = "注册成功";
-                    ViewBag.ErrorMessage = $"在你登入系统前,我们已经给您发了一份邮件，需要您先进行邮件验证，点击确认链接即可完成。";
+                    ViewBag.ErrorMessage = strB.ToString();
+
                     return View("Error");
 
                     //await signInManager.SignInAsync(user, isPersistent: false);

@@ -26,6 +26,7 @@ namespace DeviceManagement.Models
 
         public string PhotoPath { get; set; }
 
+        public string LogPath { get; set; }
 
     }
 }

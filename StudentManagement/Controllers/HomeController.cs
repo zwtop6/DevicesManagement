@@ -139,7 +139,7 @@ namespace DeviceManagement.Controllers
                 device.ClassName = model.ClassName;
                 device.City = model.City;
 
-                if (model.Photos.Count > 0)
+                if (model.Photos?.Count > 0)
                 {
                     if (model.ExistingPhotoPath != null)
                     {
@@ -152,12 +152,58 @@ namespace DeviceManagement.Controllers
                     device.PhotoPath = ProcessUploadedFile(model);
                 }
 
+                if (model.Logs?.Count > 0)
+                {
+                    device.LogPath = ProcessUploadedFileLogs(model);
+                }
+
                 Device updateDevice = _deviceRepository.Update(device);
 
                 return RedirectToAction("Index");
             }
 
             return View(model);
+        }
+
+        /// <summary>
+        /// 将日志保存到指定的路径中，并返回唯一的路径名
+        /// </summary>
+        /// <returns></returns>
+        private string ProcessUploadedFileLogs(DeviceEditViewModel model)
+        {
+            string filePath = null;
+
+            if (model.Logs.Count > 0)
+            {
+                //确定保存路径
+                if (model.ExistingLogsPath != null)
+                {
+                    filePath = model.ExistingLogsPath;
+                }
+                else
+                {
+                    string str1 = Path.Combine(webHostEnvironment.WebRootPath, "logs");
+                    string str2 = model.Name + "_" + Guid.NewGuid().ToString();
+
+                    filePath = Path.Combine(str1, str2);
+
+                    System.IO.Directory.CreateDirectory(filePath);
+                }
+
+                foreach (var log in model.Logs)
+                {
+                    string path = Path.Combine(filePath, Guid.NewGuid().ToString() + "_" + log.FileName);
+
+                    //因为使用了非托管资源，所以需要手动进行释放
+                    using (var fileStream = new FileStream(path, FileMode.Create))
+                    {
+                        //使用IFormFile接口提供的CopyTo()方法见文件赋值到wwwroot/images文件夹
+                        log.CopyTo(fileStream);
+                    }
+                }
+            }
+
+            return filePath;
         }
 
         /// <summary>
@@ -186,7 +232,6 @@ namespace DeviceManagement.Controllers
                         //使用IFormFile接口提供的CopyTo()方法见文件赋值到wwwroot/images文件夹
                         photo.CopyTo(fileStream);
                     }
-
                 }
             }
 
