@@ -129,7 +129,7 @@ namespace DeviceManagement.Controllers
         [HttpPost]
         public IActionResult Edit(DeviceEditViewModel model)
         {
-            //检查提供的数据是否有效，如果没有通过验证，需要重新编辑学生信息
+            //检查提供的数据是否有效，如果没有通过验证，需要重新编辑设备信息
             //这样用户就可以更正并重新提交编辑表单
             if (ModelState.IsValid)
             {

@@ -45,7 +45,7 @@ namespace DeviceManagement.Controllers
                     Name = model.RoleName
                 };
 
-                //如果您尝试床架具有已存在的同名的角色，则会收到验证错误
+                //如果您尝试创建具有已存在的同名的角色，则会收到验证错误
                 IdentityResult result = await roleManager.CreateAsync(identityRole);
 
                 if (result.Succeeded)
@@ -202,13 +202,11 @@ namespace DeviceManagement.Controllers
                 //被选中，不属于该角色，这个时候，添加到角色中
                 if (model[i].IsSelected && !isInRole)
                 {
-
                     result = await userManager.AddToRoleAsync(user, role.Name);
                 }
                 //没有被选中，但是用户已经在角色中，移除出来
                 else if (!model[i].IsSelected && isInRole)
                 {
-
                     result = await userManager.RemoveFromRoleAsync(user, role.Name);
                 }
                 //被选中，已经存在角色中，不发生任何改变的数据

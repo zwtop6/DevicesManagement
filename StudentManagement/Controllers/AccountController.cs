@@ -71,7 +71,6 @@ namespace DeviceManagement.Controllers
                     //需要注入ILogger<AccountController> _logger;服务，记录生成的URL链接
                     logger.Log(LogLevel.Warning, confirmationLink);
 
-
                     //如果用户已登录并属于Admin角色
                     //那么就是Admin正在创建新用户
                     //所以重定向Admin用户对ListRoles的试图列表
@@ -84,8 +83,6 @@ namespace DeviceManagement.Controllers
                     ViewBag.ErrorMessage = $"在你登入系统前,我们已经给您发了一份邮件，需要您先进行邮件验证，点击确认链接即可完成。";
                     return View("Error");
 
-                    //await signInManager.SignInAsync(user, isPersistent: false);
-                    //return RedirectToAction("Index", "Home");
                 }
 
                 //如果有任何错误，将它们添加到ModelState对象中
@@ -121,7 +118,7 @@ namespace DeviceManagement.Controllers
                     return View(model);
                 }
 
-                //PasswordSignInAsync()我们将最后一个参数从false修改为了true,用于启用账户锁定。
+                //PasswordSignInAsync()将最后一个参数从false修改为了true,用于启用账户锁定。
 
                 //每次登录失败后，都会将AspNetUsers表中的AccessFailedCount列值增加1。当它等于5时，
                 //MaxFailedAccessAttempts将会锁定账户，然后修改LockoutEnd列,添加解锁时间。
