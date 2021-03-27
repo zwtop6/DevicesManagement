@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace DeviceManagement.Controllers
@@ -71,6 +72,7 @@ namespace DeviceManagement.Controllers
                     //需要注入ILogger<AccountController> _logger;服务，记录生成的URL链接
                     logger.Log(LogLevel.Warning, confirmationLink);
 
+
                     //如果用户已登录并属于Admin角色
                     //那么就是Admin正在创建新用户
                     //所以重定向Admin用户对ListRoles的试图列表
@@ -79,10 +81,15 @@ namespace DeviceManagement.Controllers
                         return RedirectToAction("ListUsers", "Admin");
                     }
 
-                    ViewBag.ErrorTitle = "注册成功";
-                    ViewBag.ErrorMessage = $"在你登入系统前,我们已经给您发了一份邮件，需要您先进行邮件验证，点击确认链接即可完成。";
-                    return View("Error");
+                    StringBuilder strB = new StringBuilder();
+                    strB.AppendLine("在你登入系统前,我们已经给您发了一份邮件，需要您先进行邮件验证，点击确认链接即可完成。");
+                    strB.AppendLine("链接为：");
 
+                    ViewBag.LinkTitle = "注册成功";
+                    ViewBag.LinkMessage = strB.ToString();
+                    ViewBag.LinkPath = confirmationLink.ToString();
+
+                    return View("Link");
                 }
 
                 //如果有任何错误，将它们添加到ModelState对象中
@@ -118,7 +125,7 @@ namespace DeviceManagement.Controllers
                     return View(model);
                 }
 
-                //PasswordSignInAsync()将最后一个参数从false修改为了true,用于启用账户锁定。
+                //PasswordSignInAsync()我们将最后一个参数从false修改为了true,用于启用账户锁定。
 
                 //每次登录失败后，都会将AspNetUsers表中的AccessFailedCount列值增加1。当它等于5时，
                 //MaxFailedAccessAttempts将会锁定账户，然后修改LockoutEnd列,添加解锁时间。
@@ -242,10 +249,18 @@ namespace DeviceManagement.Controllers
                         var confirmationLink = Url.Action("ConfirmEmail", "Account", new { userId = user.Id, token = token }, Request.Scheme);
 
                         logger.Log(LogLevel.Warning, confirmationLink);
-                        ViewBag.Message = "如果你在我们系统有注册账户，我们已经发了邮件到您的邮箱中，请前往邮箱激活您的用户。";
+                        //ViewBag.Message = "如果你在我们系统有注册账户，我们已经发了邮件到您的邮箱中，请前往邮箱激活您的用户。";
+
+                        StringBuilder strB = new StringBuilder();
+                        strB.AppendLine("如果你在我们系统有注册账户，我们已经发了邮件到您的邮箱中，请前往邮箱激活您的用户。");
+                        strB.AppendLine("链接为：");
+
+                        ViewBag.LinkTitle = "激活邮箱";
+                        ViewBag.LinkMessage = strB.ToString();
+                        ViewBag.LinkPath = confirmationLink.ToString();
 
                         //重定向用户到忘记密码确认视图
-                        return View("ActivateUserEmailConfirmation", ViewBag.Message);
+                        return View("Link");
                     }
                 }
 

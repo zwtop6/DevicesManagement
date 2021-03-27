@@ -41,11 +41,31 @@
     </div>
 
     <div class="form-group row">
+        <label asp-for="HealthStatus" class="col-sm-2 col-form-label"></label>
+        <div class="col-sm-10">
+            <select asp-for="HealthStatus" asp-items="Html.GetEnumSelectList<HealthStatusEnum>()" class="custom-select mr-sm-2">
+                <option value="">请选择</option>
+            </select>
+            <span asp-validation-for="HealthStatus" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="form-group row">
         <label asp-for="Photos" class="col-sm-2 col-form-label"></label>
         <div class="col-sm-10">
             <div class="custom-file">
                 <input asp-for="Photos" class="form-control custom-file-input" />
                 <label class="custom-file-label">请选择照片...</label>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-group row">
+        <label asp-for="Logs" class="col-sm-2 col-form-label"></label>
+        <div class="col-sm-10">
+            <div class="custom-file">
+                <input asp-for="Logs" class="form-control custom-file-input" />
+                <label class="custom-file-label">请选择日志...</label>
             </div>
         </div>
     </div>

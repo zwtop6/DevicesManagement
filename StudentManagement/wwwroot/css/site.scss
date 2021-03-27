@@ -2,7 +2,12 @@
     width: 75px;
 }
 
-.imagesThumbnail{
-    height:200px;
-    width:auto;
+.imagesThumbnail {
+    height: 200px;
+    width: auto;
+}
+
+.li {
+    word-break: break-all;
+    word-wrap: break-word;
 }
