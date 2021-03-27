@@ -1,0 +1,38 @@
+﻿@model DeviceManagement.ViewModels.DeviceAnalysisViewModel
+@*@model指定模型类型*@
+@*@Model访问模型对象属性*@
+
+@{ ViewBag.Title = "设备分析页面"; }
+
+
+<h3>@ViewBag.Title</h3>
+
+<div class="row justify-content-center m-3">
+    <div class="col-sm-8">
+        <div class="card">
+
+            <div class=" card-header">
+                <h1>健康状态：@Model.DeviceStatus</h1>
+            </div>
+
+            <div class="card-body text-left">
+                <h4>气密性状态：@Model.GasStatus</h4>
+                <h4>传感器状态：@Model.SensorStatus</h4>
+                <h4>阀门状态：@Model.ValueStatus</h4>
+                <h4>真空泵状态：@Model.MotorStatus</h4>
+                <h4>升降电机状态：@Model.MotorStatus</h4>
+                <h4>加热炉状态：@Model.StoveStatus</h4>
+                <h4>建议：</h4>
+                <h4>    @Model.DeviceAdvice</h4>
+            </div>
+
+            <div class="card-footer text-center">
+                <a asp-action="Index" asp-controller="home" class="btn btn-primary">返回</a>
+                <a href="#" class="btn btn-primary">下载</a>
+                <a href="#" class="btn btn-primary">更正</a>
+                <a href="#" class="btn btn-danger">删除</a>
+            </div>
+
+        </div>
+    </div>
+</div>

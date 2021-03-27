@@ -4,14 +4,16 @@ using DeviceManagement.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace DeviceManagement.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210301124625_zw")]
+    partial class zw
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -100,9 +102,6 @@ namespace DeviceManagement.Migrations
                     b.Property<int>("ClassName")
                         .HasColumnType("int");
 
-                    b.Property<int?>("DeviceDetailId")
-                        .HasColumnType("int");
-
                     b.Property<int>("HealthStatus")
                         .HasColumnType("int");
 
@@ -119,129 +118,7 @@ namespace DeviceManagement.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("DeviceDetailId");
-
                     b.ToTable("Devices");
-                });
-
-            modelBuilder.Entity("DeviceManagement.Models.DeviceDetail", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .UseIdentityColumn();
-
-                    b.Property<double>("AirPress")
-                        .HasColumnType("float");
-
-                    b.Property<double>("AirPressMax")
-                        .HasColumnType("float");
-
-                    b.Property<double>("AirPressMin")
-                        .HasColumnType("float");
-
-                    b.Property<bool>("AutoValve")
-                        .HasColumnType("bit");
-
-                    b.Property<double>("ChangOilTime")
-                        .HasColumnType("float");
-
-                    b.Property<DateTime>("CheckTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("CloseValve")
-                        .HasColumnType("bit");
-
-                    b.Property<double>("DownDuring")
-                        .HasColumnType("float");
-
-                    b.Property<bool>("DownMotor")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("GasAdvice")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<double>("HighPressDuring")
-                        .HasColumnType("float");
-
-                    b.Property<double>("HighPressEndP")
-                        .HasColumnType("float");
-
-                    b.Property<double>("HighPressStartP")
-                        .HasColumnType("float");
-
-                    b.Property<bool>("HoldStove")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime>("LastChangeOilTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<double>("LowPressDuring")
-                        .HasColumnType("float");
-
-                    b.Property<double>("LowPressEndP")
-                        .HasColumnType("float");
-
-                    b.Property<double>("LowPressStartP")
-                        .HasColumnType("float");
-
-                    b.Property<string>("MotorAdvice")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("OpenValve")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("PumpAdvice")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("SenorAdvice")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<double>("StandardAirPress")
-                        .HasColumnType("float");
-
-                    b.Property<double>("StandardAirTemp")
-                        .HasColumnType("float");
-
-                    b.Property<bool>("StartStove")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("StopMotor")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("StopStove")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("StoveAdvice")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<double>("StoveAirTemp")
-                        .HasColumnType("float");
-
-                    b.Property<double>("StoveTempMax")
-                        .HasColumnType("float");
-
-                    b.Property<double>("StoveTempMin")
-                        .HasColumnType("float");
-
-                    b.Property<double>("UpDuring")
-                        .HasColumnType("float");
-
-                    b.Property<bool>("UpMotor")
-                        .HasColumnType("bit");
-
-                    b.Property<double>("UseDuring")
-                        .HasColumnType("float");
-
-                    b.Property<double>("VacuumPress")
-                        .HasColumnType("float");
-
-                    b.Property<string>("ValveAdvice")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("DeviceDetail");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -373,16 +250,6 @@ namespace DeviceManagement.Migrations
                     b.HasKey("UserId", "LoginProvider", "Name");
 
                     b.ToTable("AspNetUserTokens");
-                });
-
-            modelBuilder.Entity("DeviceManagement.Models.Device", b =>
-                {
-                    b.HasOne("DeviceManagement.Models.DeviceDetail", "DeviceDetail")
-                        .WithMany()
-                        .HasForeignKey("DeviceDetailId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.Navigation("DeviceDetail");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

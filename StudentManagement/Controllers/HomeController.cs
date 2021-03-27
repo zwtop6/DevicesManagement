@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using DeviceManagement.Models;
 using DeviceManagement.ViewModels;
@@ -14,6 +15,11 @@ namespace DeviceManagement.Controllers
 {
     public class HomeController : Controller
     {
+        const string NORMAL = "正常";
+        const string ERROR = "错误";
+        const string WARING = "警告";
+        const string UNKONW = "未知";
+
         private readonly IDeviceRepository _deviceRepository;
         private readonly IWebHostEnvironment webHostEnvironment;
         private readonly ILogger logger;
@@ -168,6 +174,100 @@ namespace DeviceManagement.Controllers
             return View(model);
         }
 
+        [HttpGet]
+        public ViewResult Analysis(int id)
+        {
+            Device device = _deviceRepository.GetDevice(id);
+
+            if (device != null)
+            {
+                CreatShowData(device);
+
+                DeviceAnalysisViewModel deviceAnalysisViewModel = new DeviceAnalysisViewModel
+                {
+                    Id = device.Id,
+                    //分析气密性
+                    GasStatus = ConvertStatus(AnalysisGasStatus(device)),
+                    //分析传感器
+                    SensorStatus = ConvertStatus(AnalysisSensorStatus(device)),
+                    //分析阀门
+                    ValueStatus = ConvertStatus(AnalysisValveStatus(device)),
+                    //分析真空泵
+                    PumpStatus = ConvertStatus(AnalysisPumpStatus(device)),
+                    //分析升降电机
+                    MotorStatus = ConvertStatus(AnalysisMotorStatus(device)),
+                    //分析加热炉
+                    StoveStatus = ConvertStatus(AnalysisStoveStatus(device)),
+                };
+                //分析总体健康
+                deviceAnalysisViewModel.DeviceStatus = ConvertStatus(AnalysisDeviceStatus(deviceAnalysisViewModel));
+                //得出健康建议
+                deviceAnalysisViewModel.DeviceAdvice = AnalysisDeviceAdvice(device.DeviceDetail);
+
+                return View(deviceAnalysisViewModel);
+            }
+
+            throw new Exception("查询不到这个设备信息");
+        }
+
+        #region ShowData
+
+        private void CreatShowData(Device device)
+        {
+            if (device.DeviceDetail == null)
+            {
+                device.DeviceDetail = new DeviceDetail
+                {
+                    //气密性
+                    LowPressStartP = 10,
+                    LowPressEndP = 20,
+                    LowPressDuring = 2,
+                    HighPressStartP = 20000,
+                    HighPressDuring = 10,
+                    HighPressEndP = 21000,
+
+                    //传感器
+                    VacuumPress = 2,
+                    AirPress = 10001,
+                    StandardAirPress = 10000,
+                    AirPressMax = 10010,
+                    AirPressMin = 9960,
+
+                    //阀门
+                    OpenValve = true,
+                    CloseValve = true,
+                    AutoValve = true,
+
+                    //真空泵
+                    UseDuring = 3100,
+                    LastChangeOilTime = DateTime.Now,
+                    ChangOilTime = 3000,
+
+                    //电机
+                    UpMotor = true,
+                    DownMotor = true,
+                    StopMotor = true,
+                    UpDuring = 30,
+                    DownDuring = 35,
+
+                    //加热炉
+                    StartStove = true,
+                    StopStove = true,
+                    HoldStove = true,
+                    StoveTempMax = 310,
+                    StoveTempMin = 290,
+                    StandardAirTemp = 30,
+                    StoveAirTemp = 31,
+                };
+            }
+        }
+
+        #endregion
+
+        #region Private Funtion
+
+
+
         /// <summary>
         /// 将日志保存到指定的路径中，并返回唯一的路径名
         /// </summary>
@@ -240,6 +340,291 @@ namespace DeviceManagement.Controllers
 
             return uniqueFileName;
         }
+
+        private HealthStatusEnum AnalysisDeviceStatus(DeviceAnalysisViewModel model)
+        {
+            HealthStatusEnum result = HealthStatusEnum.Normal;
+
+            List<string> list = new List<string>();
+
+            list.Add(model.GasStatus);
+            list.Add(model.SensorStatus);
+            list.Add(model.PumpStatus);
+            list.Add(model.MotorStatus);
+            list.Add(model.ValueStatus);
+            list.Add(model.StoveStatus);
+
+            if (list.Contains(ERROR))
+            {
+                result = HealthStatusEnum.Error;
+            }
+            else if (list.Contains(WARING))
+            {
+                result = HealthStatusEnum.Warning;
+            }
+
+            return result;
+        }
+
+        const double LOWGASNORMAL = 100;
+        const double LOWGASWARING = 200;
+        const double HIGHGASNORMAL = 1000;
+        const double HIGHGASWARINGL = 2000;
+
+        private HealthStatusEnum AnalysisGasStatus(Device model)
+        {
+            HealthStatusEnum result = HealthStatusEnum.Unknown;
+            DeviceDetail deviceDetail = model.DeviceDetail;
+
+            //低压气密性
+            double lowGas = (deviceDetail.LowPressEndP - deviceDetail.LowPressStartP) / deviceDetail.LowPressDuring;
+
+            //高压气密性
+            double highGas = (deviceDetail.HighPressEndP - deviceDetail.HighPressStartP) / deviceDetail.HighPressDuring;
+
+            if (lowGas <= LOWGASNORMAL && highGas <= HIGHGASNORMAL)
+            {
+                result = HealthStatusEnum.Normal;
+            }
+            else if (lowGas > LOWGASWARING || highGas > HIGHGASWARINGL)
+            {
+                result = HealthStatusEnum.Error;
+                deviceDetail.GasAdvice = "气密性异常，会造成测试不准确。";
+            }
+            else
+            {
+                result = HealthStatusEnum.Warning;
+
+                if (lowGas <= LOWGASNORMAL)
+                {
+                    deviceDetail.GasAdvice = "低压气密性较差。";
+                }
+
+                if (highGas <= HIGHGASWARINGL)
+                {
+                    deviceDetail.GasAdvice += "高压气密性较差。";
+                }
+            }
+
+            return result;
+        }
+
+        const double DIFFERENTPRESS = 30;
+        const double STABLEPRESS = 20;
+
+        private HealthStatusEnum AnalysisSensorStatus(Device model)
+        {
+            HealthStatusEnum result = HealthStatusEnum.Unknown;
+            DeviceDetail deviceDetail = model.DeviceDetail;
+
+            //真空压力差值
+            double vacuumDiff = Math.Abs(deviceDetail.VacuumPress);
+            //常压压力差值
+            double airDiff = Math.Abs(deviceDetail.AirPress - deviceDetail.StandardAirPress);
+            //稳定度
+            double stableDiff = deviceDetail.AirPressMax - deviceDetail.AirPressMin;
+
+            if (vacuumDiff <= DIFFERENTPRESS && airDiff <= DIFFERENTPRESS && stableDiff <= STABLEPRESS)
+            {
+                result = HealthStatusEnum.Normal;
+            }
+            else
+            {
+                result = HealthStatusEnum.Warning;
+
+                if (vacuumDiff > LOWGASNORMAL)
+                {
+                    deviceDetail.SenorAdvice = "真空条件下读数不准确。";
+                }
+
+                if (airDiff > HIGHGASWARINGL)
+                {
+                    deviceDetail.SenorAdvice += "常压条件下读数不准确。";
+                }
+
+                if (stableDiff > STABLEPRESS)
+                {
+                    deviceDetail.SenorAdvice += "读数稳定性较差。";
+                }
+            }
+
+            return result;
+        }
+
+        private HealthStatusEnum AnalysisValveStatus(Device model)
+        {
+            HealthStatusEnum result = HealthStatusEnum.Unknown;
+            DeviceDetail deviceDetail = model.DeviceDetail;
+
+            if (deviceDetail.OpenValve && deviceDetail.CloseValve && deviceDetail.AutoValve)
+            {
+                result = HealthStatusEnum.Normal;
+            }
+            else
+            {
+                result = HealthStatusEnum.Error;
+
+                deviceDetail.ValveAdvice = "阀门操作异常，无法正常运行。";
+
+                if (!deviceDetail.OpenValve)
+                {
+                    deviceDetail.ValveAdvice += "打开阀门操作失败。";
+                }
+
+                if (!deviceDetail.CloseValve)
+                {
+                    deviceDetail.ValveAdvice += "关闭阀门操作失败。";
+                }
+
+                if (!deviceDetail.AutoValve)
+                {
+                    deviceDetail.ValveAdvice += "自动控制阀门操作失败。";
+                }
+            }
+
+            return result;
+        }
+
+        private HealthStatusEnum AnalysisPumpStatus(Device model)
+        {
+            HealthStatusEnum result = HealthStatusEnum.Normal;
+            DeviceDetail deviceDetail = model.DeviceDetail;
+
+            if ((DateTime.Now - deviceDetail.LastChangeOilTime).TotalHours > deviceDetail.ChangOilTime)
+            {
+                result = HealthStatusEnum.Warning;
+
+                deviceDetail.PumpAdvice = "距离上次更换泵油时间过长，建议更换泵油。";
+            }
+
+            return result;
+        }
+
+        private HealthStatusEnum AnalysisMotorStatus(Device model)
+        {
+            HealthStatusEnum result = HealthStatusEnum.Unknown;
+            DeviceDetail deviceDetail = model.DeviceDetail;
+
+            if (deviceDetail.UpMotor && deviceDetail.DownMotor && deviceDetail.StopMotor)
+            {
+                result = HealthStatusEnum.Normal;
+            }
+            else
+            {
+                result = HealthStatusEnum.Error;
+
+                deviceDetail.MotorAdvice = "电机操作异常，无法正常运行。";
+
+                if (!deviceDetail.UpMotor)
+                {
+                    deviceDetail.MotorAdvice += "上升电机操作失败。";
+                }
+
+                if (!deviceDetail.DownMotor)
+                {
+                    deviceDetail.MotorAdvice += "下降电机操作失败。";
+                }
+
+                if (!deviceDetail.StopMotor)
+                {
+                    deviceDetail.MotorAdvice += "停止电机操作失败。";
+                }
+            }
+
+            return result;
+        }
+
+        const double DIFFERENTTEMP = 5;
+
+        private HealthStatusEnum AnalysisStoveStatus(Device model)
+        {
+            HealthStatusEnum result = HealthStatusEnum.Unknown;
+            DeviceDetail deviceDetail = model.DeviceDetail;
+
+            double tempDiff = deviceDetail.StoveTempMax - deviceDetail.StoveTempMin;
+
+            if (deviceDetail.StartStove && deviceDetail.StopStove && deviceDetail.HoldStove && tempDiff <= DIFFERENTTEMP)
+            {
+                result = HealthStatusEnum.Normal;
+            }
+            else if (!deviceDetail.StartStove || !deviceDetail.StopStove || !deviceDetail.HoldStove)
+            {
+                result = HealthStatusEnum.Error;
+                deviceDetail.StoveAdvice = "加热炉操作异常，无法正常运行。";
+
+                if (!deviceDetail.StartStove)
+                {
+                    deviceDetail.StoveAdvice += "开始加热操作失败。";
+                }
+
+                if (!deviceDetail.StopStove)
+                {
+                    deviceDetail.StoveAdvice += "停止加热操作失败。";
+                }
+
+                if (!deviceDetail.HoldStove)
+                {
+                    deviceDetail.StoveAdvice += "保持温度操作失败。";
+                }
+            }
+            else
+            {
+                result = HealthStatusEnum.Warning;
+                deviceDetail.StoveAdvice = "加热炉保持温度稳定性较差，会影响测试结果。";
+            }
+
+            return result;
+        }
+
+        private string AnalysisDeviceAdvice(DeviceDetail model)
+        {
+            StringBuilder result = new StringBuilder();
+
+            result.Append(model.GasAdvice);
+            result.Append(model.SenorAdvice);
+            result.Append(model.ValveAdvice);
+            result.Append(model.PumpAdvice);
+            result.Append(model.MotorAdvice);
+            result.Append(model.StoveAdvice);
+
+            if (result.Length > 0)
+            {
+                result.Append("建议尽早联系售后人员进行检查");
+            }
+
+            //result.Append("     该设备整体健康状态良好,可以正常工作。但是气密性相较之前变差，处于不影响测试的边缘，建议尽早联系售后人员进行检查；而真空泵也长时间未更换泵油，建议更换泵油。");
+
+            return result.ToString();
+        }
+
+        private string ConvertStatus(HealthStatusEnum status)
+        {
+            string result = "";
+
+            switch (status)
+            {
+                case HealthStatusEnum.Unknown:
+                    result = UNKONW;
+                    break;
+                case HealthStatusEnum.Normal:
+                    result = NORMAL;
+                    break;
+                case HealthStatusEnum.Warning:
+                    result = WARING;
+                    break;
+                case HealthStatusEnum.Error:
+                    result = ERROR;
+                    break;
+                default:
+                    break;
+            }
+
+            return result;
+        }
+
+
+        #endregion
+
 
     }
 }
