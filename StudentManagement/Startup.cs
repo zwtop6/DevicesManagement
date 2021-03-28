@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using DeviceManagement.Middlewares;
@@ -15,6 +16,7 @@ using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using StudentManagement.Data;
@@ -185,12 +187,17 @@ namespace DeviceManagement
 
             //app.UseMvcWithDefaultRoute();
 
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapDefaultControllerRoute();
+            });
+
             // UseEndpoints 是一个可以处理跨不同中间件系统（如MVC、 Razor Pages、 Blazor、 SignalR和gRPC）的路由系统。
             //通过终结点路由可以使端点相互协作，并使系统比没有相互对话的终端中间件更全面。
-            app.UseEndpoints(routes =>
-            {
-                routes.MapControllerRoute("default", pattern: "{controller=Home}/{action=Index}/{id?}");
-            });
+            //app.UseEndpoints(routes =>
+            //{
+            //    routes.MapControllerRoute("default", pattern: "{controller=Home}/{action=Index}/{id?}");
+            //});
 
         }
 

@@ -210,6 +210,12 @@ namespace DeviceManagement.Controllers
             throw new Exception("查询不到这个设备信息");
         }
 
+        [HttpGet]
+        public IActionResult Chart()
+        {
+            return View();
+        }
+
         #region ShowData
 
         private void CreatShowData(Device device)

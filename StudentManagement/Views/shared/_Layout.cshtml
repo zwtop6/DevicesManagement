@@ -9,7 +9,7 @@
     <environment include="Development"></environment>
 
     <link href="~/lib/twitter-bootstrap/css/bootstrap.css" rel="stylesheet" />
-    <link href="~/css/site.scss" rel="stylesheet" />
+    <link href="C:\Users\89728\source\repos\StudentManagement\StudentManagement\wwwroot\css\site.scss" rel="stylesheet" />
 
 </head>
 <body>
@@ -34,7 +34,7 @@
                         <a class="nav-link" asp-controller="home" asp-action="Create">添加设备</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" asp-controller="#" asp-action="#">设备统计</a>
+                        <a class="nav-link" asp-controller="home" asp-action="Chart">设备历史</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" asp-controller="#" asp-action="#">设备比较</a>
@@ -44,41 +44,40 @@
                     </li>
                     @if (SignInManager.IsSignedIn(User))
                     {
-                        <li class="nav-item dropdown">
-                            <a href="#" class=" nav-link dropdown-toggle" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">管理</a>
-                            <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                                @if (User.IsInRole("Admin"))
-                                {
-                                    <a class="dropdown-item" asp-controller="Admin" asp-action="ListRoles">角色管理</a>
-                                    <a class="dropdown-item" asp-controller="Admin" asp-action="ListUsers">用户列表</a>
-                                }
+        <li class="nav-item dropdown">
+            <a href="#" class=" nav-link dropdown-toggle" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">管理</a>
+            <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                @if (User.IsInRole("Admin"))
+                {
+<a class="dropdown-item" asp-controller="Admin" asp-action="ListRoles">角色管理</a>
+                    <a class="dropdown-item" asp-controller="Admin" asp-action="ListUsers">用户列表</a>}
 
-                                <a class="dropdown-item" asp-controller="Account" asp-action="ChangePassword">密码管理</a>
+                <a class="dropdown-item" asp-controller="Account" asp-action="ChangePassword">密码管理</a>
 
-                            </div>
-                        </li>
-                    }
+            </div>
+        </li>
+}
                 </ul>
 
                 <ul class="navbar-nav ml-auto">
 
                     @if (SignInManager.IsSignedIn(User))
                     {
-                        <li class="nav-item">
-                            <form asp-controller="account" asp-action="logout" method="post">
-                                <button type="submit" style="width:auto" class="nav-link btn btn-link py-0">注销 @User.Identity.Name</button>
-                            </form>
-                        </li>
-                    }
-                    else
-                    {
-                        <li class="nav-item">
-                            <a class="nav-link" asp-controller="account" asp-action="Register">注册</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-controller="account" asp-action="Login">登录</a>
-                        </li>
-                    }
+        <li class="nav-item">
+            <form asp-controller="account" asp-action="logout" method="post">
+                <button type="submit" style="width:auto" class="nav-link btn btn-link py-0">注销 @User.Identity.Name</button>
+            </form>
+        </li>
+ }
+    else
+    {
+<li class="nav-item">
+    <a class="nav-link" asp-controller="account" asp-action="Register">注册</a>
+</li>
+                <li class="nav-item">
+                    <a class="nav-link" asp-controller="account" asp-action="Login">登录</a>
+                </li>
+}
 
                 </ul>
 
