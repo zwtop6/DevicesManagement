@@ -33,25 +33,25 @@
     {
         var photoPath = "~/images/" + (device.PhotoPath ?? "bigpm1.jpg");
 
-<div class="card m-3">
-    <div class="card-header">
-        <h3>@device.Name</h3>
-    </div>
-    <img class="card-img-top imagesThumbnail" src="@photoPath" asp-append-version="true" />
-    <div class="card-body">
-        <div class="row">
-            <h5>@ViewBag.HealthStatus</h5>
-            <h5 class="col-md-6 text-right">@ConvertStatus(device.HealthStatus)</h5>
-        </div>
-    </div>
+        <div class="card m-3">
+            <div class="card-header">
+                <h3>@device.Name</h3>
+            </div>
+            <img class="card-img-top imagesThumbnail" src="@photoPath" asp-append-version="true" />
+            <div class="card-body">
+                <div class="row">
+                    <h5>@ViewBag.HealthStatus</h5>
+                    <h5 class="col-md-6 text-right">@ConvertStatus(device.HealthStatus)</h5>
+                </div>
+            </div>
 
-    <div class="card-footer text-center">
+            <div class="card-footer text-center">
 
-        <a asp-controller="home" asp-action="details" asp-route-id="@device.Id" class="btn btn-primary m-1">查看</a>
-        <a asp-controller="home" asp-action="edit" asp-route-id="@device.Id" class="btn btn-primary">编辑</a>
-        <a asp-controller="home" asp-action="Analysis" asp-route-id="@device.Id" class="btn btn-primary">分析</a>
-        <a href="#" class="btn btn-danger">删除</a>
-    </div>
-</div>}
+                <a asp-controller="home" asp-action="details" asp-route-id="@device.Id" class="btn btn-primary m-1">查看</a>
+                <a asp-controller="home" asp-action="edit" asp-route-id="@device.Id" class="btn btn-primary">编辑</a>
+                <a asp-controller="home" asp-action="Analysis" asp-route-id="@device.Id" class="btn btn-primary">分析</a>
+                <a href="#" class="btn btn-danger">删除</a>
+            </div>
+        </div>}
 </div>
 

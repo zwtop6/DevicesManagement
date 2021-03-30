@@ -1,0 +1,293 @@
+﻿@model DeviceManagement.ViewModels.DeviceAnalysisViewModel
+
+<!DOCTYPE html>
+<html lang="zh-cmn-Hans">
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>小马技术 chart.js</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <link rel="stylesheet" type="text/css" media="screen" href="~/css/main.css" />
+    <script src="~/js/Chart.bundle.min.js"></script>
+</head>
+<body>
+    <canvas id="myChart">
+        图表区
+    </canvas>
+
+    <h5>------------------</h5>
+
+    <script>
+            (function () {
+                'use strict';
+
+                var type = 'pie';//bar,horizontalBar,line,radar,pie,doughnut
+                var data = {
+                    labels: [2014, 2015, 2016, 2017, 2018],
+                    datasets: [
+                        {
+                            type: 'line',
+                            label: '优酷',
+                            data: [100, 200, 400, 800, 1600],
+                            yAxisID: 'youku-axes',
+
+                            borderColor: 'skyblue',
+                            borderWidth: 2,
+                            fill: false,
+                            backgroundColor: 'rgba(0,0,128,0.4)',
+                            lineTension: 0,
+                            pointStyle: 'rect',//circle,cross,corssRot,dash,line,rect,rectRounded,rectRot,Star,triangle
+                            pointRadius: 4,
+                        },
+                        {
+                            type: 'bar',
+                            label: 'Youtube',
+                            data: [50, 100, 200, 400, 800],
+                            yAxisID: 'youtube-axes',
+
+                            borderColor: 'red',
+                            borderWidth: 2,
+                            fill: true,
+                            backgroundColor: 'rgba(128,0,0,0.4)',
+                            //backgroundColor: [
+                            //    'red',
+                            //    'orange',
+                            //    'yellow',
+                            //    'green',
+                            //    'steelblue',
+                            //],
+                            lineTension: 0,
+                            pointStyle: 'triangle',//circle,cross,corssRot,dash,line,rect,rectRounded,rectRot,Star,triangle
+                            pointRadius: 4,
+                        }
+                    ]
+                };
+
+                //bar
+
+                var barData = {
+                    labels: [2016, 2017, 2018, 2019, 2020],
+                    datasets: [
+                        {
+                            
+                            type: 'line',
+                            label: '优酷',
+                            data: [100, 200, 400, 800, 1600],
+                            yAxisID: 'youku-axes',
+
+                            borderColor: 'skyblue',
+                            borderWidth: 2,
+                            fill: false,
+                            backgroundColor: 'rgba(0,0,128,0.4)',
+                            lineTension: 0,
+                            pointStyle: 'rect',//circle,cross,corssRot,dash,line,rect,rectRounded,rectRot,Star,triangle
+                            pointRadius: 4,
+                        },
+                        {
+                            type: 'bar',
+                            label: 'Youtube',
+                            data: [50, 100, 200, 400, 800],
+                            yAxisID: 'youtube-axes',
+
+                            borderColor: 'red',
+                            borderWidth: 2,
+                            fill: true,
+                            backgroundColor: 'rgba(128,0,0,0.4)',
+                            //backgroundColor: [
+                            //    'red',
+                            //    'orange',
+                            //    'yellow',
+                            //    'green',
+                            //    'steelblue',
+                            //],
+                            lineTension: 0,
+                            pointStyle: 'triangle',//circle,cross,corssRot,dash,line,rect,rectRounded,rectRot,Star,triangle
+                            pointRadius: 4,
+                        }
+                    ]
+                };
+
+                var barOptions = {
+                    scales: {
+                        yAxes: [
+                            {
+                                id: 'youku-axes',
+                                type: 'linear',
+                                position: 'left',
+                                ticks: {
+                                    suggestedMin: 0,
+                                    suggestedMax: 2000,
+                                    //stepSize: 400,
+                                    //callback: function (value, index, values) {
+                                    //    return value + '人';
+                                    //},
+                                }
+                            },
+                            {
+                                id: 'youtube-axes',
+                                type: 'linear',
+                                position: 'right',
+                                ticks: {
+                                    suggestedMin: 0,
+                                    suggestedMax: 800,
+                                    //stepSize: 400,
+                                    //callback: function (value, index, values) {
+                                    //    return value + '人';
+                                    //},
+                                },
+                                gridLines: {
+                                    dispaly: false
+                                }
+                            }],
+                        //bar叠加
+                        //xAxes: [{
+                        //    stacked: true
+                        //}],
+                        //yAxes: [{
+                        //    stacked: true
+                        //}]
+                    },
+                    title: {
+                        display: true,
+                        text: 'Hello World!你好，世界！',
+                        fontColor: 'red',
+                        fontsize: '24',
+                        position: 'top',
+                    },
+                    legend: {
+                        position: 'top',
+                        display: true,
+                    },
+                    animation: {
+                        duration: 1000,
+                        easing: 'easeOutQuart',//easeOutQuart,easeInBounce,
+                    }
+                };
+
+                //radar
+                var radarData = {
+                    labels: ['伤害', '辅助', '存活', '上手', '价格'],
+                    datasets: [
+                        {
+                            label: '泽拉图',
+                            data: [70, 60, 50, 50, 70],
+                            backgroundColor: 'rgba(0,255,128,0.5)',
+
+                        },
+                        {
+                            label: '雷诺',
+                            data: [90, 10, 40, 70, 20],
+                            backgroundColor: 'rgba(0,0,0,0.5)',
+                        }
+                    ]
+                };
+
+                var radarOptions = {
+                    scale: {
+                        ticks: {
+                            suggestedMin: 0,
+                            suggestedMax: 100,
+                            stepSize: 20,
+                        }
+                    },
+                    title: {
+                        display: true,
+                        text: '雷达图',
+                        fontColor: 'red',
+                        fontsize: '24',
+                        position: 'top',
+                    },
+                };
+
+                //pie
+                var pieData = {
+                    labels: ['泽拉图', '雷诺', '小鹿'],
+                    datasets: [
+                        {
+                            data: [70, 40, 55],
+                            backgroundColor: ['green', 'gray', 'pink']
+                        }
+                    ]
+                };
+
+                var pieOptions = {
+                    title: {
+                        display: true,
+                        text: '饼图',
+                        fontColor: 'indigo',
+                        fontsize: '24',
+                        position: 'top',
+                    },
+                    cutoutPercentage: 0,
+                };
+
+                var options = {
+                    scales: {
+                        yAxes: [
+                            {
+                                id: 'youku-axes',
+                                type: 'linear',
+                                position: 'left',
+                                ticks: {
+                                    suggestedMin: 0,
+                                    suggestedMax: 2000,
+                                    //stepSize: 400,
+                                    //callback: function (value, index, values) {
+                                    //    return value + '人';
+                                    //},
+                                }
+                            },
+                            {
+                                id: 'youtube-axes',
+                                type: 'linear',
+                                position: 'right',
+                                ticks: {
+                                    suggestedMin: 0,
+                                    suggestedMax: 800,
+                                    //stepSize: 400,
+                                    //callback: function (value, index, values) {
+                                    //    return value + '人';
+                                    //},
+                                },
+                                gridLines: {
+                                    dispaly: false
+                                }
+                            }],
+                        //bar叠加
+                        //xAxes: [{
+                        //    stacked: true
+                        //}],
+                        //yAxes: [{
+                        //    stacked: true
+                        //}]
+                    },
+                    title: {
+                        display: true,
+                        text: 'Hello World!你好，世界！',
+                        fontColor: 'red',
+                        fontsize: '24',
+                        position: 'top',
+                    },
+                    legend: {
+                        position: 'top',
+                        display: true,
+                    },
+                    animation: {
+                        duration: 1000,
+                        easing: 'easeOutQuart',//easeOutQuart,easeInBounce,
+                    }
+                };
+
+                var ctx = document.getElementById('myChart').getContext('2d');
+                var chart = new Chart(ctx, {
+                    type: type,
+                    data: pieData,
+                    options: pieOptions,
+                });
+            })();
+    </script>
+</body>
+
+</html>
+
+

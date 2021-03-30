@@ -4,35 +4,143 @@
 
 @{ ViewBag.Title = "设备分析页面"; }
 
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <link rel="stylesheet" type="text/css" media="screen" href="~/css/main.css" />
+    <script src="~/js/Chart.bundle.min.js"></script>
+</head>
 
 <h3>@ViewBag.Title</h3>
 
-<div class="row justify-content-center m-3">
-    <div class="col-sm-8">
-        <div class="card">
-
-            <div class=" card-header">
-                <h1>健康状态：@Model.DeviceStatus</h1>
+<div class="container">
+    <div class="row">
+        <div class="span4">
+            <div class="row justify-content-lg-center">
+                <div class="col-sm-8">
+                    <div class="card">
+                        <div class=" card-header">
+                            <h1>健康状态：@Model.DeviceStatus</h1>
+                        </div>
+                        <div class="card-body">
+                            <table>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <h4>气密性状态：</h4>
+                                        </td>
+                                        <td>
+                                            <h4>@Model.GasStatus</h4>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <h4>传感器状态：</h4>
+                                        </td>
+                                        <td>
+                                            <h4>@Model.SensorStatus</h4>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <h4>阀门状态：</h4>
+                                        </td>
+                                        <td>
+                                            <h4>@Model.ValueStatus</h4>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <h4>真空泵状态：</h4>
+                                        </td>
+                                        <td>
+                                            <h4>@Model.MotorStatus</h4>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <h4>升降电机状态：</h4>
+                                        </td>
+                                        <td>
+                                            <h4>@Model.MotorStatus</h4>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <h4>加热炉状态：</h4>
+                                        </td>
+                                        <td>
+                                            <h4>@Model.StoveStatus</h4>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div>
+                                <h4>建议：</h4>
+                                <h4>@Model.DeviceAdvice</h4>
+                            </div>
+                        </div>
+                        <div class="card-footer text-center">
+                            <a asp-action="Index" asp-controller="home" class="btn btn-primary">返回</a>
+                            <a href="#" class="btn btn-primary">下载</a>
+                            <a href="#" class="btn btn-primary">更正</a>
+                            <a href="#" class="btn btn-danger">删除</a>
+                        </div>
+                    </div>
+                </div>
             </div>
-
-            <div class="card-body text-left">
-                <h4>气密性状态：@Model.GasStatus</h4>
-                <h4>传感器状态：@Model.SensorStatus</h4>
-                <h4>阀门状态：@Model.ValueStatus</h4>
-                <h4>真空泵状态：@Model.MotorStatus</h4>
-                <h4>升降电机状态：@Model.MotorStatus</h4>
-                <h4>加热炉状态：@Model.StoveStatus</h4>
-                <h4>建议：</h4>
-                <h4>    @Model.DeviceAdvice</h4>
-            </div>
-
-            <div class="card-footer text-center">
-                <a asp-action="Index" asp-controller="home" class="btn btn-primary">返回</a>
-                <a href="#" class="btn btn-primary">下载</a>
-                <a href="#" class="btn btn-primary">更正</a>
-                <a href="#" class="btn btn-danger">删除</a>
-            </div>
-
+        </div>
+        <div class="span8">
+            @*<canvas id="myChart">
+            </canvas>*@
         </div>
     </div>
 </div>
+
+<script>
+    (function () {
+        'use strict';
+
+        var type = 'radar';//bar,horizontalBar,line,radar,pie,doughnut
+
+        var data = {
+            labels: ['气密性', '传感器', '阀门', '真空泵', '电机', '加热炉'],
+            datasets: [
+                {
+                    data: [4, 3, 3, 4, 4, 3],
+                    backgroundColor: 'rgba(128,0,0,0.5)'
+                }
+            ]
+        };
+
+        var options = {
+            scale: {
+                ticks: {
+                    suggestedMin: 0,
+                    suggestedMax: 4,
+                    stepSize: 1,
+                }
+            },
+            title: {
+                display: true,
+                text: '健康状态雷达图',
+                fontColor: 'indigo',
+                fontsize: '24',
+                position: 'top',
+            },
+            legend: {
+                position: 'top',
+                display: false,
+            },
+        };
+
+        var ctx = document.getElementById('myChart');
+        var chart = new Chart(ctx, {
+            type: type,
+            data: data,
+            options: options,
+        });
+    })();
+</script>
+
