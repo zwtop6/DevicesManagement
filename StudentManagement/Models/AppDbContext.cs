@@ -15,12 +15,14 @@ namespace DeviceManagement.Models
 
         public DbSet<Device> Devices { get; set; }
 
+        public DbSet<DeviceDetail> DeviceDetails { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
             foreach (var foreignKey in modelBuilder.Model.GetEntityTypes().SelectMany(
-                e=>e.GetForeignKeys()
+                e => e.GetForeignKeys()
                 ))
             {
                 foreignKey.DeleteBehavior = DeleteBehavior.Restrict;

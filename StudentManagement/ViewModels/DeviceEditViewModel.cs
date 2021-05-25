@@ -13,6 +13,8 @@ namespace DeviceManagement.ViewModels
 
         public int Id { get; set; }
 
+        public string GUID { get; set; }
+
         public string ExistingPhotoPath { get; set; }
 
         public string ExistingLogsPath { get; set; }

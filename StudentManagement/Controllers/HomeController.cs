@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using DeviceManagement.Common;
 using DeviceManagement.Models;
 using DeviceManagement.ViewModels;
 using Microsoft.AspNetCore.Authorization;
@@ -96,6 +97,7 @@ namespace DeviceManagement.Controllers
             {
                 Device newDevice = new Device
                 {
+                    GUID = Guid.NewGuid().ToString(),
                     Name = model.Name,
                     ClassName = model.ClassName,
                     City = model.City,
@@ -120,6 +122,7 @@ namespace DeviceManagement.Controllers
                 DeviceEditViewModel deviceEditViewModel = new DeviceEditViewModel
                 {
                     Id = device.Id,
+                    GUID = device.GUID,
                     Name = device.Name,
                     ClassName = device.ClassName,
                     City = device.City,
@@ -164,6 +167,7 @@ namespace DeviceManagement.Controllers
                 if (model.Logs?.Count > 0)
                 {
                     device.LogPath = ProcessUploadedFileLogs(model);
+                    SaveDeviceDetail(model);
                 }
 
                 Device updateDevice = _deviceRepository.Update(device);
@@ -174,10 +178,20 @@ namespace DeviceManagement.Controllers
             return View(model);
         }
 
+        public IActionResult Delete(int id)
+        {
+            _deviceRepository.Delete(id);
+            return RedirectToAction("Index");
+        }
+
         [HttpGet]
         public ViewResult Analysis(int id)
         {
             Device device = _deviceRepository.GetDevice(id);
+
+            List<DeviceDetail> deviceDetails = _deviceRepository.GetDeviceDetails(device.Id);
+
+            DeviceDetail deviceDetail = deviceDetails.OrderBy(c => c.CheckTime).Last();
 
             if (device != null)
             {
@@ -187,22 +201,22 @@ namespace DeviceManagement.Controllers
                 {
                     Id = device.Id,
                     //分析气密性
-                    GasStatus = ConvertStatus(AnalysisGasStatus(device)),
+                    GasStatus = ConvertStatus(AnalysisGasStatus(deviceDetail)),
                     //分析传感器
-                    SensorStatus = ConvertStatus(AnalysisSensorStatus(device)),
+                    SensorStatus = ConvertStatus(AnalysisSensorStatus(deviceDetail)),
                     //分析阀门
-                    ValueStatus = ConvertStatus(AnalysisValveStatus(device)),
+                    ValueStatus = ConvertStatus(AnalysisValveStatus(deviceDetail)),
                     //分析真空泵
-                    PumpStatus = ConvertStatus(AnalysisPumpStatus(device)),
+                    PumpStatus = ConvertStatus(AnalysisPumpStatus(deviceDetail)),
                     //分析升降电机
-                    MotorStatus = ConvertStatus(AnalysisMotorStatus(device)),
+                    MotorStatus = ConvertStatus(AnalysisMotorStatus(deviceDetail)),
                     //分析加热炉
-                    StoveStatus = ConvertStatus(AnalysisStoveStatus(device)),
+                    StoveStatus = ConvertStatus(AnalysisStoveStatus(deviceDetail)),
                 };
                 //分析总体健康
                 deviceAnalysisViewModel.DeviceStatus = ConvertStatus(AnalysisDeviceStatus(deviceAnalysisViewModel));
                 //得出健康建议
-                deviceAnalysisViewModel.DeviceAdvice = AnalysisDeviceAdvice(device.DeviceDetail);
+                deviceAnalysisViewModel.DeviceAdvice = AnalysisDeviceAdvice(deviceDetail);
 
                 return View(deviceAnalysisViewModel);
             }
@@ -220,57 +234,75 @@ namespace DeviceManagement.Controllers
 
         private void CreatShowData(Device device)
         {
-            if (device.DeviceDetail == null)
-            {
-                device.DeviceDetail = new DeviceDetail
-                {
-                    //气密性
-                    LowPressStartP = 10,
-                    LowPressEndP = 20,
-                    LowPressDuring = 2,
-                    HighPressStartP = 20000,
-                    HighPressDuring = 10,
-                    HighPressEndP = 21000,
+            //if (device.DeviceDetail == null)
+            //{
+            //    device.DeviceDetail = new DeviceDetail
+            //    {
+            //        //气密性
+            //        LowPressStartP = 10,
+            //        LowPressEndP = 20,
+            //        LowPressDuring = 2,
+            //        HighPressStartP = 20000,
+            //        HighPressDuring = 10,
+            //        HighPressEndP = 21000,
 
-                    //传感器
-                    VacuumPress = 2,
-                    AirPress = 10001,
-                    StandardAirPress = 10000,
-                    AirPressMax = 10010,
-                    AirPressMin = 9960,
+            //        //传感器
+            //        VacuumPress = 2,
+            //        AirPress = 10001,
+            //        StandardAirPress = 10000,
+            //        AirPressMax = 10010,
+            //        AirPressMin = 9960,
 
-                    //阀门
-                    OpenValve = true,
-                    CloseValve = true,
-                    AutoValve = true,
+            //        //阀门
+            //        OpenValve = true,
+            //        CloseValve = true,
+            //        AutoValve = true,
 
-                    //真空泵
-                    UseDuring = 3100,
-                    LastChangeOilTime = DateTime.Now,
-                    ChangOilTime = 3000,
+            //        //真空泵
+            //        UseDuring = 3100,
+            //        LastChangeOilTime = DateTime.Now,
+            //        ChangOilTime = 3000,
 
-                    //电机
-                    UpMotor = true,
-                    DownMotor = true,
-                    StopMotor = true,
-                    UpDuring = 30,
-                    DownDuring = 35,
+            //        //电机
+            //        UpMotor = true,
+            //        DownMotor = true,
+            //        StopMotor = true,
+            //        UpDuring = 30,
+            //        DownDuring = 35,
 
-                    //加热炉
-                    StartStove = true,
-                    StopStove = true,
-                    HoldStove = true,
-                    StoveTempMax = 310,
-                    StoveTempMin = 290,
-                    StandardAirTemp = 30,
-                    StoveAirTemp = 31,
-                };
-            }
+            //        //加热炉
+            //        StartStove = true,
+            //        StopStove = true,
+            //        HoldStove = true,
+            //        StoveTempMax = 310,
+            //        StoveTempMin = 290,
+            //        StandardAirTemp = 30,
+            //        StoveAirTemp = 31,
+            //    };
+            //}
         }
 
         #endregion
 
         #region Private Funtion
+
+        private void SaveDeviceDetail(DeviceEditViewModel model)
+        {
+            foreach (var log in model.Logs)
+            {
+                Stream stream = log.OpenReadStream();
+                using (StreamReader reader = new StreamReader(stream))
+                {
+                    string strxml = reader.ReadToEnd();
+
+                    DeviceDetail deviceDetail = HelperXML.DESerializer<DeviceDetail>(strxml);
+                    deviceDetail.DeviceGUID = model.GUID;
+
+                    _deviceRepository.AddDetail(deviceDetail);
+                }
+
+            }
+        }
 
 
 
@@ -377,10 +409,10 @@ namespace DeviceManagement.Controllers
         const double HIGHGASNORMAL = 1000;
         const double HIGHGASWARINGL = 2000;
 
-        private HealthStatusEnum AnalysisGasStatus(Device model)
+        private HealthStatusEnum AnalysisGasStatus(DeviceDetail model)
         {
             HealthStatusEnum result = HealthStatusEnum.Unknown;
-            DeviceDetail deviceDetail = model.DeviceDetail;
+            DeviceDetail deviceDetail = model;
 
             //低压气密性
             double lowGas = (deviceDetail.LowPressEndP - deviceDetail.LowPressStartP) / deviceDetail.LowPressDuring;
@@ -418,10 +450,10 @@ namespace DeviceManagement.Controllers
         const double DIFFERENTPRESS = 30;
         const double STABLEPRESS = 20;
 
-        private HealthStatusEnum AnalysisSensorStatus(Device model)
+        private HealthStatusEnum AnalysisSensorStatus(DeviceDetail model)
         {
             HealthStatusEnum result = HealthStatusEnum.Unknown;
-            DeviceDetail deviceDetail = model.DeviceDetail;
+            DeviceDetail deviceDetail = model;
 
             //真空压力差值
             double vacuumDiff = Math.Abs(deviceDetail.VacuumPress);
@@ -457,10 +489,10 @@ namespace DeviceManagement.Controllers
             return result;
         }
 
-        private HealthStatusEnum AnalysisValveStatus(Device model)
+        private HealthStatusEnum AnalysisValveStatus(DeviceDetail model)
         {
             HealthStatusEnum result = HealthStatusEnum.Unknown;
-            DeviceDetail deviceDetail = model.DeviceDetail;
+            DeviceDetail deviceDetail = model;
 
             if (deviceDetail.OpenValve && deviceDetail.CloseValve && deviceDetail.AutoValve)
             {
@@ -491,10 +523,10 @@ namespace DeviceManagement.Controllers
             return result;
         }
 
-        private HealthStatusEnum AnalysisPumpStatus(Device model)
+        private HealthStatusEnum AnalysisPumpStatus(DeviceDetail model)
         {
             HealthStatusEnum result = HealthStatusEnum.Normal;
-            DeviceDetail deviceDetail = model.DeviceDetail;
+            DeviceDetail deviceDetail = model;
 
             if ((DateTime.Now - deviceDetail.LastChangeOilTime).TotalHours > deviceDetail.ChangOilTime)
             {
@@ -506,10 +538,10 @@ namespace DeviceManagement.Controllers
             return result;
         }
 
-        private HealthStatusEnum AnalysisMotorStatus(Device model)
+        private HealthStatusEnum AnalysisMotorStatus(DeviceDetail model)
         {
             HealthStatusEnum result = HealthStatusEnum.Unknown;
-            DeviceDetail deviceDetail = model.DeviceDetail;
+            DeviceDetail deviceDetail = model;
 
             if (deviceDetail.UpMotor && deviceDetail.DownMotor && deviceDetail.StopMotor)
             {
@@ -542,10 +574,10 @@ namespace DeviceManagement.Controllers
 
         const double DIFFERENTTEMP = 5;
 
-        private HealthStatusEnum AnalysisStoveStatus(Device model)
+        private HealthStatusEnum AnalysisStoveStatus(DeviceDetail model)
         {
             HealthStatusEnum result = HealthStatusEnum.Unknown;
-            DeviceDetail deviceDetail = model.DeviceDetail;
+            DeviceDetail deviceDetail = model;
 
             double tempDiff = deviceDetail.StoveTempMax - deviceDetail.StoveTempMin;
 

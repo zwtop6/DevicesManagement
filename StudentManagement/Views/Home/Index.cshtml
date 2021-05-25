@@ -50,7 +50,7 @@
                 <a asp-controller="home" asp-action="details" asp-route-id="@device.Id" class="btn btn-primary m-1">查看</a>
                 <a asp-controller="home" asp-action="edit" asp-route-id="@device.Id" class="btn btn-primary">编辑</a>
                 <a asp-controller="home" asp-action="Analysis" asp-route-id="@device.Id" class="btn btn-primary">分析</a>
-                <a href="#" class="btn btn-danger">删除</a>
+                <a asp-controller="home" asp-action="Delete" asp-route-id="@device.Id" class="btn btn-danger">删除</a>
             </div>
         </div>}
 </div>

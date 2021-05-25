@@ -4,14 +4,16 @@ using DeviceManagement.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace DeviceManagement.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210525103458_2020525zw")]
+    partial class _2020525zw
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -100,12 +102,6 @@ namespace DeviceManagement.Migrations
                     b.Property<int>("ClassName")
                         .HasColumnType("int");
 
-                    b.Property<int?>("DeviceDetailId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("GUID")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<int>("HealthStatus")
                         .HasColumnType("int");
 
@@ -121,8 +117,6 @@ namespace DeviceManagement.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("DeviceDetailId");
 
                     b.ToTable("Devices");
                 });
@@ -155,8 +149,8 @@ namespace DeviceManagement.Migrations
                     b.Property<bool>("CloseValve")
                         .HasColumnType("bit");
 
-                    b.Property<string>("DeviceGUID")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("DeviceID")
+                        .HasColumnType("int");
 
                     b.Property<double>("DownDuring")
                         .HasColumnType("float");
@@ -246,6 +240,9 @@ namespace DeviceManagement.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("DeviceID")
+                        .IsUnique();
 
                     b.ToTable("DeviceDetails");
                 });
@@ -381,14 +378,13 @@ namespace DeviceManagement.Migrations
                     b.ToTable("AspNetUserTokens");
                 });
 
-            modelBuilder.Entity("DeviceManagement.Models.Device", b =>
+            modelBuilder.Entity("DeviceManagement.Models.DeviceDetail", b =>
                 {
-                    b.HasOne("DeviceManagement.Models.DeviceDetail", "DeviceDetail")
-                        .WithMany()
-                        .HasForeignKey("DeviceDetailId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.Navigation("DeviceDetail");
+                    b.HasOne("DeviceManagement.Models.Device", null)
+                        .WithOne("DeviceDetail")
+                        .HasForeignKey("DeviceManagement.Models.DeviceDetail", "DeviceID")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -440,6 +436,11 @@ namespace DeviceManagement.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("DeviceManagement.Models.Device", b =>
+                {
+                    b.Navigation("DeviceDetail");
                 });
 #pragma warning restore 612, 618
         }

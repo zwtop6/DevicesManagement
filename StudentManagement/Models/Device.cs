@@ -13,6 +13,8 @@ namespace DeviceManagement.Models
     {
         public int Id { get; set; }
 
+        public string GUID { get; set; }
+
         [Display(Name = "名称")]
         [Required(ErrorMessage = "请输入名字"), MaxLength(20, ErrorMessage = "名字长度不能超过20个字符")]
         public string Name { get; set; }
@@ -30,7 +32,7 @@ namespace DeviceManagement.Models
 
         [Display(Name = "健康状态")]
         public HealthStatusEnum HealthStatus { get; set; }
-
+        
         public DeviceDetail DeviceDetail { get; set; }
 
     }

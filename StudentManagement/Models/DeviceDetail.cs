@@ -13,6 +13,8 @@ namespace DeviceManagement.Models
     {
         public int Id { get; set; }
 
+        public string DeviceGUID { get; set; }
+
         public DateTime CheckTime { get; set; }
 
         #region 气密性(低压气密性、高压气密性）

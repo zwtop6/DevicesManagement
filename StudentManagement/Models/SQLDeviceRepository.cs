@@ -21,6 +21,8 @@ namespace DeviceManagement.Models
             return device;
         }
 
+
+
         public Device Delete(int id)
         {
             Device device = _context.Devices.Find(id);
@@ -33,6 +35,8 @@ namespace DeviceManagement.Models
 
             return device;
         }
+
+
 
         public IEnumerable<Device> GetAllDevices()
         {
@@ -53,6 +57,43 @@ namespace DeviceManagement.Models
             _context.SaveChanges();
 
             return newdevice;
+        }
+
+        public DeviceDetail AddDetail(DeviceDetail deviceDetail)
+        {
+            _context.DeviceDetails.Add(deviceDetail);
+            _context.SaveChanges();
+
+            return deviceDetail;
+        }
+
+        public DeviceDetail UpdateDetail(DeviceDetail deviceDetail)
+        {
+            var device = _context.DeviceDetails.Attach(deviceDetail);
+
+            device.State = Microsoft.EntityFrameworkCore.EntityState.Modified;
+
+            _context.SaveChanges();
+
+            return deviceDetail;
+        }
+
+        public DeviceDetail DeleteDetail(int id)
+        {
+            DeviceDetail deviceDetail = _context.DeviceDetails.Find(id);
+
+            if (deviceDetail != null)
+            {
+                _context.DeviceDetails.Remove(deviceDetail);
+                _context.SaveChanges();
+            }
+
+            return deviceDetail;
+        }
+
+        public List<DeviceDetail> GetDeviceDetails(int deviceID)
+        {
+            throw new NotImplementedException();
         }
     }
 }

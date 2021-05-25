@@ -9,6 +9,8 @@ namespace DeviceManagement.Models
     {
         Device GetDevice(int id);
 
+        List<DeviceDetail> GetDeviceDetails(int deviceID);
+
         public IEnumerable<Device> GetAllDevices();
 
         public Device Add(Device device);
@@ -16,5 +18,11 @@ namespace DeviceManagement.Models
         public Device Update(Device newdevice);
 
         public Device Delete(int id);
+
+        public DeviceDetail AddDetail(DeviceDetail deviceDetail);
+
+        public DeviceDetail UpdateDetail(DeviceDetail deviceDetail);
+
+        public DeviceDetail DeleteDetail(int id);
     }
 }

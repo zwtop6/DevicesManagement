@@ -27,6 +27,11 @@ namespace DeviceManagement.Models
             return device;
         }
 
+        public DeviceDetail AddDetail(DeviceDetail deviceDetail)
+        {
+            throw new NotImplementedException();
+        }
+
         public Device Delete(int id)
         {
             Device device = _devicesList.FirstOrDefault(s => s.Id == id);
@@ -39,6 +44,11 @@ namespace DeviceManagement.Models
             return device;
         }
 
+        public DeviceDetail DeleteDetail(int id)
+        {
+            throw new NotImplementedException();
+        }
+
         public IEnumerable<Device> GetAllDevices()
         {
             return _devicesList;
@@ -47,6 +57,11 @@ namespace DeviceManagement.Models
         public Device GetDevice(int id)
         {
             return _devicesList.FirstOrDefault(a => a.Id == id);
+        }
+
+        public List<DeviceDetail> GetDeviceDetails(int deviceID)
+        {
+            throw new NotImplementedException();
         }
 
         public Device Update(Device newdevice)
@@ -61,6 +76,11 @@ namespace DeviceManagement.Models
             }
 
             return device;
+        }
+
+        public DeviceDetail UpdateDetail(DeviceDetail deviceDetail)
+        {
+            throw new NotImplementedException();
         }
     }
 }

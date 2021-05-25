@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-16"?>
+<DeviceDetail xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Id>0</Id>
+  <DeviceID>1</DeviceID>
+  <CheckTime>2021-05-25T18:19:59.4200397+08:00</CheckTime>
+  <LowPressStartP>10</LowPressStartP>
+  <LowPressEndP>20</LowPressEndP>
+  <LowPressDuring>2</LowPressDuring>
+  <HighPressStartP>20000</HighPressStartP>
+  <HighPressEndP>21000</HighPressEndP>
+  <HighPressDuring>10</HighPressDuring>
+  <VacuumPress>2</VacuumPress>
+  <AirPress>10001</AirPress>
+  <StandardAirPress>10000</StandardAirPress>
+  <AirPressMax>10010</AirPressMax>
+  <AirPressMin>9960</AirPressMin>
+  <OpenValve>true</OpenValve>
+  <CloseValve>true</CloseValve>
+  <AutoValve>true</AutoValve>
+  <UseDuring>3100</UseDuring>
+  <LastChangeOilTime>2021-05-25T18:19:59.4213455+08:00</LastChangeOilTime>
+  <ChangOilTime>3000</ChangOilTime>
+  <UpMotor>true</UpMotor>
+  <DownMotor>true</DownMotor>
+  <StopMotor>true</StopMotor>
+  <UpDuring>30</UpDuring>
+  <DownDuring>35</DownDuring>
+  <StartStove>true</StartStove>
+  <StopStove>true</StopStove>
+  <HoldStove>true</HoldStove>
+  <StoveTempMax>310</StoveTempMax>
+  <StoveTempMin>290</StoveTempMin>
+  <StoveAirTemp>31</StoveAirTemp>
+  <StandardAirTemp>30</StandardAirTemp>
+</DeviceDetail>
