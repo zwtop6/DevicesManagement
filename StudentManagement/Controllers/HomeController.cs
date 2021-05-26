@@ -167,7 +167,7 @@ namespace DeviceManagement.Controllers
                 if (model.Logs?.Count > 0)
                 {
                     device.LogPath = ProcessUploadedFileLogs(model);
-                    SaveDeviceDetail(model);
+                    SaveDeviceDetail(model, device.GUID);
                 }
 
                 Device updateDevice = _deviceRepository.Update(device);
@@ -236,6 +236,12 @@ namespace DeviceManagement.Controllers
         public ViewResult Chart(int id)
         {
             Device device = _deviceRepository.GetDevice(id);
+
+            if (device == null)
+            {
+                device = _deviceRepository.GetAllDevices().First();
+            }
+
             guid = device == null ? "" : device.GUID;
 
             ChartViewModel model = new ChartViewModel
@@ -287,9 +293,18 @@ namespace DeviceManagement.Controllers
                 {
                     int year = item.CheckTime.Year;
 
+                    if (year < stratYear || year > endYear) continue;
+
                     if (!dict1.ContainsKey(year))
                     {
                         dict1.Add(year, new int[7]);
+                        dict1[year][0] += item.WarningNum;
+                        dict1[year][1] += item.WarningNum1;
+                        dict1[year][2] += item.WarningNum2;
+                        dict1[year][3] += item.WarningNum3;
+                        dict1[year][4] += item.WarningNum4;
+                        dict1[year][5] += item.WarningNum5;
+                        dict1[year][6] += item.WarningNum6;
                     }
                     else
                     {
@@ -305,6 +320,13 @@ namespace DeviceManagement.Controllers
                     if (!dict2.ContainsKey(year))
                     {
                         dict2.Add(year, new int[7]);
+                        dict2[year][0] += item.ErrorNum;
+                        dict2[year][1] += item.ErrorNum1;
+                        dict2[year][2] += item.ErrorNum2;
+                        dict2[year][3] += item.ErrorNum3;
+                        dict2[year][4] += item.ErrorNum4;
+                        dict2[year][5] += item.ErrorNum5;
+                        dict2[year][6] += item.ErrorNum6;
                     }
                     else
                     {
@@ -419,7 +441,7 @@ namespace DeviceManagement.Controllers
 
         #region Private Funtion
 
-        private void SaveDeviceDetail(DeviceEditViewModel model)
+        private void SaveDeviceDetail(DeviceEditViewModel model, string guid)
         {
             foreach (var log in model.Logs)
             {
@@ -429,7 +451,7 @@ namespace DeviceManagement.Controllers
                     string strxml = reader.ReadToEnd();
 
                     DeviceDetail deviceDetail = HelperXML.DESerializer<DeviceDetail>(strxml);
-                    deviceDetail.DeviceGUID = model.GUID;
+                    deviceDetail.DeviceGUID = guid;
 
                     _deviceRepository.AddDetail(deviceDetail);
                 }
