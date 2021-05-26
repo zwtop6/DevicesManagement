@@ -1,0 +1,118 @@
+﻿@model DeviceManagement.ViewModels.DeviceAnalysisViewModel
+
+@{ ViewBag.Title = "设备分析页面"; }
+
+<!DOCTYPE html>
+
+<div>
+    <canvas id="myChart">
+        图表区
+    </canvas>
+</div>
+
+
+<meta charset="utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<link rel="stylesheet" type="text/css" media="screen" href="~/css/main.css" />
+<script src="~/js/Chart.bundle.min.js"></script>
+<link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/css/bootstrap.min.css">
+<script src="https://cdn.staticfile.org/jquery/2.1.1/jquery.min.js"></script>
+<script src="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<script>
+
+    (function () {
+        'use strict';
+
+        var type = 'bar';//bar,horizontalBar,line,radar,pie,doughnut
+
+        //bar
+        var data = {
+            labels: [2016, 2017, 2018, 2019, 2020],
+            datasets: [
+                {
+                    label: '错误',
+                    data: [0, 1, 2, 2, 4],
+                    yAxisID: 'yAxes',
+
+                    borderColor: 'red',
+                    borderWidth: 2,
+                    fill: true,
+                    backgroundColor: 'rgba(255,0,0,0.4)',
+                },
+                {
+                    label: '警告',
+                    data: [2, 4, 6, 7, 10],
+                    yAxisID: 'yAxes',
+
+                    borderColor: 'skyblue',
+                    borderWidth: 2,
+                    fill: true,
+                    backgroundColor: 'rgba(0,0,255,0.4)',
+                }
+            ]
+        };
+
+        var options = {
+            scales: {
+                yAxes: [
+                    {
+                        id: 'yAxes',
+                        type: 'linear',
+                        position: 'left',
+                        ticks: {
+                            suggestedMin: 0,
+                            suggestedMax: 12,
+                            stepSize: 2,
+                            callback: function (value, index, values) {
+                                return value + '次';
+                            },
+                        }
+                    }],
+            },
+            title: {
+                display: true,
+                text: '历史健康状态条形图',
+                fontColor: 'black',
+                fontsize: '48',
+                position: 'top',
+            },
+            legend: {
+                position: 'top',
+                display: true,
+            },
+            hover: {
+                animationDuration: 0  // 防止鼠标移上去，数字闪烁
+            },
+            animation: {           // 这部分是数值显示的功能实现
+                onComplete: function () {
+                    var chartInstance = this.chart,
+
+                        ctx = chartInstance.ctx;
+                    // 以下属于canvas的属性（font、fillStyle、textAlign...）
+                    ctx.font = Chart.helpers.fontString(Chart.defaults.global.defaultFontSize, Chart.defaults.global.defaultFontStyle, Chart.defaults.global.defaultFontFamily);
+                    ctx.fillStyle = "black";
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'bottom';
+
+                    this.data.datasets.forEach(function (dataset, i) {
+                        var meta = chartInstance.controller.getDatasetMeta(i);
+                        meta.data.forEach(function (bar, index) {
+                            var data = dataset.data[index];
+                            ctx.fillText(data, bar._model.x, bar._model.y - 5);
+                        });
+                    });
+                }
+            }
+        };
+
+        var ctx = document.getElementById('myChart').getContext('2d');
+        var chart = new Chart(ctx, {
+            type: type,
+            data: data,
+            options: options,
+        });
+    })();
+</script>
+
+

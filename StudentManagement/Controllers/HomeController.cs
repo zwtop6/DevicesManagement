@@ -189,14 +189,22 @@ namespace DeviceManagement.Controllers
         {
             Device device = _deviceRepository.GetDevice(id);
 
-            List<DeviceDetail> deviceDetails = _deviceRepository.GetDeviceDetails(device.Id);
+            List<DeviceDetail> deviceDetails = _deviceRepository.GetDeviceDetails(device.GUID);
 
-            DeviceDetail deviceDetail = deviceDetails.OrderBy(c => c.CheckTime).Last();
+            DeviceDetail deviceDetail = new DeviceDetail();
+
+            if (deviceDetails != null && deviceDetails.Count > 0)
+            {
+                deviceDetail = deviceDetails.OrderBy(c => c.CheckTime).Last();
+            }
+            else
+            {
+                CreatShowData(deviceDetail);
+            }
+
 
             if (device != null)
             {
-                CreatShowData(device);
-
                 DeviceAnalysisViewModel deviceAnalysisViewModel = new DeviceAnalysisViewModel
                 {
                     Id = device.Id,
@@ -225,61 +233,186 @@ namespace DeviceManagement.Controllers
         }
 
         [HttpGet]
-        public IActionResult Chart()
+        public ViewResult Chart(int id)
         {
+            Device device = _deviceRepository.GetDevice(id);
+            guid = device == null ? "" : device.GUID;
+
+            ChartViewModel model = new ChartViewModel
+            {
+                StartYear = stratYear,
+                EndYear = endYear,
+                SecectError = selectError,
+                SelectWarning = selectWarning
+            };
+
+            return View(model);
+        }
+
+        [HttpPost]
+        public IActionResult Chart(ChartViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                stratYear = model.StartYear;
+                endYear = model.EndYear;
+                selectError = model.SecectError;
+                selectWarning = model.SelectWarning;
+
+                return RedirectToAction();
+            }
+
             return View();
         }
 
+        #region Chart
+
+        private static string guid = "";
+        private static int stratYear = 2016;
+        private static int endYear = 2020;
+        private static bool selectWarning = true;
+        private static bool selectError = true;
+
+        [HttpPost]
+        public JsonResult GetCharts()
+        {
+            SortedDictionary<int, int[]> dict1 = new SortedDictionary<int, int[]>();
+            SortedDictionary<int, int[]> dict2 = new SortedDictionary<int, int[]>();
+
+            List<DeviceDetail> deviceDetails = _deviceRepository.GetDeviceDetails(guid);
+
+            if (deviceDetails != null && deviceDetails.Count > 0)
+            {
+                foreach (var item in deviceDetails)
+                {
+                    int year = item.CheckTime.Year;
+
+                    if (!dict1.ContainsKey(year))
+                    {
+                        dict1.Add(year, new int[7]);
+                    }
+                    else
+                    {
+                        dict1[year][0] += item.WarningNum;
+                        dict1[year][1] += item.WarningNum1;
+                        dict1[year][2] += item.WarningNum2;
+                        dict1[year][3] += item.WarningNum3;
+                        dict1[year][4] += item.WarningNum4;
+                        dict1[year][5] += item.WarningNum5;
+                        dict1[year][6] += item.WarningNum6;
+                    }
+
+                    if (!dict2.ContainsKey(year))
+                    {
+                        dict2.Add(year, new int[7]);
+                    }
+                    else
+                    {
+                        dict2[year][0] += item.ErrorNum;
+                        dict2[year][1] += item.ErrorNum1;
+                        dict2[year][2] += item.ErrorNum2;
+                        dict2[year][3] += item.ErrorNum3;
+                        dict2[year][4] += item.ErrorNum4;
+                        dict2[year][5] += item.ErrorNum5;
+                        dict2[year][6] += item.ErrorNum6;
+                    }
+                }
+            }
+
+            List<dynamic> Labels = new List<dynamic>();
+            List<dynamic> W = new List<dynamic>();
+            List<dynamic> W1 = new List<dynamic>();
+            List<dynamic> W2 = new List<dynamic>();
+            List<dynamic> W3 = new List<dynamic>();
+            List<dynamic> W4 = new List<dynamic>();
+            List<dynamic> W5 = new List<dynamic>();
+            List<dynamic> W6 = new List<dynamic>();
+            List<dynamic> E = new List<dynamic>();
+            List<dynamic> E1 = new List<dynamic>();
+            List<dynamic> E2 = new List<dynamic>();
+            List<dynamic> E3 = new List<dynamic>();
+            List<dynamic> E4 = new List<dynamic>();
+            List<dynamic> E5 = new List<dynamic>();
+            List<dynamic> E6 = new List<dynamic>();
+
+            foreach (var item in dict1)
+            {
+                Labels.Add(item.Key);
+                var tmp = item.Value;
+                W.Add(tmp[0]);
+                W1.Add(tmp[1]);
+                W2.Add(tmp[2]);
+                W3.Add(tmp[3]);
+                W4.Add(tmp[4]);
+                W5.Add(tmp[5]);
+                W6.Add(tmp[6]);
+            }
+
+            foreach (var item in dict2)
+            {
+                var tmp = item.Value;
+                E.Add(tmp[0]);
+                E1.Add(tmp[1]);
+                E2.Add(tmp[2]);
+                E3.Add(tmp[3]);
+                E4.Add(tmp[4]);
+                E5.Add(tmp[5]);
+                E6.Add(tmp[6]);
+            }
+
+            return Json(new { labels = Labels, w = W, w1 = W1, w2 = W2, w3 = W3, w4 = W4, w5 = W5, w6 = W6, e = E, e1 = E1, e2 = E2, e3 = E3, e4 = E4, e5 = E5, e6 = E6 });
+        }
+
+        #endregion
+
         #region ShowData
 
-        private void CreatShowData(Device device)
+        private void CreatShowData(DeviceDetail device)
         {
-            //if (device.DeviceDetail == null)
-            //{
-            //    device.DeviceDetail = new DeviceDetail
-            //    {
-            //        //气密性
-            //        LowPressStartP = 10,
-            //        LowPressEndP = 20,
-            //        LowPressDuring = 2,
-            //        HighPressStartP = 20000,
-            //        HighPressDuring = 10,
-            //        HighPressEndP = 21000,
+            device = new DeviceDetail
+            {
+                //气密性
+                LowPressStartP = 10,
+                LowPressEndP = 20,
+                LowPressDuring = 2,
+                HighPressStartP = 20000,
+                HighPressDuring = 10,
+                HighPressEndP = 21000,
 
-            //        //传感器
-            //        VacuumPress = 2,
-            //        AirPress = 10001,
-            //        StandardAirPress = 10000,
-            //        AirPressMax = 10010,
-            //        AirPressMin = 9960,
+                //传感器
+                VacuumPress = 2,
+                AirPress = 10001,
+                StandardAirPress = 10000,
+                AirPressMax = 10010,
+                AirPressMin = 9960,
 
-            //        //阀门
-            //        OpenValve = true,
-            //        CloseValve = true,
-            //        AutoValve = true,
+                //阀门
+                OpenValve = true,
+                CloseValve = true,
+                AutoValve = true,
 
-            //        //真空泵
-            //        UseDuring = 3100,
-            //        LastChangeOilTime = DateTime.Now,
-            //        ChangOilTime = 3000,
+                //真空泵
+                UseDuring = 3100,
+                LastChangeOilTime = DateTime.Now,
+                ChangOilTime = 3000,
 
-            //        //电机
-            //        UpMotor = true,
-            //        DownMotor = true,
-            //        StopMotor = true,
-            //        UpDuring = 30,
-            //        DownDuring = 35,
+                //电机
+                UpMotor = true,
+                DownMotor = true,
+                StopMotor = true,
+                UpDuring = 30,
+                DownDuring = 35,
 
-            //        //加热炉
-            //        StartStove = true,
-            //        StopStove = true,
-            //        HoldStove = true,
-            //        StoveTempMax = 310,
-            //        StoveTempMin = 290,
-            //        StandardAirTemp = 30,
-            //        StoveAirTemp = 31,
-            //    };
-            //}
+                //加热炉
+                StartStove = true,
+                StopStove = true,
+                HoldStove = true,
+                StoveTempMax = 310,
+                StoveTempMin = 290,
+                StandardAirTemp = 30,
+                StoveAirTemp = 31,
+            };
+
         }
 
         #endregion

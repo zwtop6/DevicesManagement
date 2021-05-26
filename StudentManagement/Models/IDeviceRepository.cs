@@ -9,7 +9,7 @@ namespace DeviceManagement.Models
     {
         Device GetDevice(int id);
 
-        List<DeviceDetail> GetDeviceDetails(int deviceID);
+        List<DeviceDetail> GetDeviceDetails(string guid);
 
         public IEnumerable<Device> GetAllDevices();
 

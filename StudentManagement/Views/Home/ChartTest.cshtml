@@ -1,0 +1,192 @@
+﻿@model DeviceManagement.ViewModels.DeviceAnalysisViewModel
+
+@{
+    ViewBag.Title = "设备分析页面";
+}
+
+<!DOCTYPE html>
+<html lang="zh-cmn-Hans">
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <link rel="stylesheet" type="text/css" media="screen" href="~/css/main.css" />
+    <script src="~/js/Chart.bundle.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://cdn.staticfile.org/jquery/2.1.1/jquery.min.js"></script>
+    <script src="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+</head>
+
+<body>
+
+
+    <h3>@ViewBag.Title</h3>
+
+    <hr />
+
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-2">
+                <form role="form">
+                    <div class="form-group">
+                        <label for="startDate">起始年份</label>
+                        <input type="text" class="form-control" id="startDate" placeholder="请输入起始年份">
+                    </div>
+                    <div class="form-group">
+                        <label for="endDate">结束年份</label>
+                        <input type="text" class="form-control" id="endDate" placeholder="请输入结束年份">
+                    </div>
+                    <label for="selectStatus">选择状态</label>
+                    <div class="checkbox">
+                        <label>
+                            <input type="checkbox">正常状态
+                        </label>
+                    </div>
+                    <div class="checkbox">
+                        <label>
+                            <input type="checkbox">警告状态
+                        </label>
+                    </div>
+                    <div class="checkbox">
+                        <label>
+                            <input type="checkbox">错误状态
+                        </label>
+                    </div>
+                    <button type="submit" class="btn btn-default">查询</button>
+                </form>
+            </div>
+            <div class="col-sm-9">
+                <ul class="nav nav-tabs">
+                    <li class="active"><a href="#">总</a></li>
+                    <li><a href="#">气密性</a></li>
+                    <li><a href="#">传感器</a></li>
+                    <li><a href="#">阀门</a></li>
+                    <li><a href="#">真空泵</a></li>
+                    <li><a href="#">电机</a></li>
+                    <li><a href="#">加热炉</a></li>
+                </ul>
+                <canvas id="myChart">
+                    图表区
+                </canvas>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+
+<script>
+    (function () {
+        'use strict';
+
+        //使用Ajax获取json数据
+        var jsonData = $.ajax({
+            url: 'Controllers/GetCharts',
+            type: "get",
+            dataType: 'json',
+        }).done(function (res) {
+            // 将获取到的json数据分别存放到两个数组中
+            var labels = [], data1 = [], data2 = [];
+            for (var i = 0; i < res.name.length; i++) {
+                labels[i] = res.name[i].Name;
+            }
+
+            for (var i = 0; i < res.data1.length; i++) {
+                data1[i] = res.data1[i].data;
+            }
+
+            for (var i = 0; i < res.data2.length; i++) {
+                data2[i] = res.data2[i].data;
+            }
+
+            var type = 'bar';//bar,horizontalBar,line,radar,pie,doughnut
+
+            //bar
+            var data = {
+                labels: labels,
+                datasets: [
+                    {
+                        label: '错误',
+                        data: data1,
+                        yAxisID: 'yAxes',
+
+                        borderColor: 'red',
+                        borderWidth: 2,
+                        fill: true,
+                        backgroundColor: 'rgba(255,0,0,0.4)',
+                    },
+                    {
+                        label: '警告',
+                        data: data2,
+                        yAxisID: 'yAxes',
+
+                        borderColor: 'skyblue',
+                        borderWidth: 2,
+                        fill: true,
+                        backgroundColor: 'rgba(0,0,255,0.4)',
+                    }
+                ]
+            };
+
+            var options = {
+                scales: {
+                    yAxes: [
+                        {
+                            id: 'yAxes',
+                            type: 'linear',
+                            position: 'left',
+                            ticks: {
+                                suggestedMin: 0,
+                                suggestedMax: 12,
+                                stepSize: 2,
+                                callback: function (value, index, values) {
+                                    return value + '次';
+                                },
+                            }
+                        }],
+                },
+                title: {
+                    display: true,
+                    text: '历史健康状态条形图',
+                    fontColor: 'black',
+                    fontsize: '48',
+                    position: 'top',
+                },
+                legend: {
+                    position: 'top',
+                    display: true,
+                },
+                hover: {
+                    animationDuration: 0  // 防止鼠标移上去，数字闪烁
+                },
+                animation: {           // 这部分是数值显示的功能实现
+                    onComplete: function () {
+                        var chartInstance = this.chart,
+
+                            ctx = chartInstance.ctx;
+                        // 以下属于canvas的属性（font、fillStyle、textAlign...）
+                        ctx.font = Chart.helpers.fontString(Chart.defaults.global.defaultFontSize, Chart.defaults.global.defaultFontStyle, Chart.defaults.global.defaultFontFamily);
+                        ctx.fillStyle = "black";
+                        ctx.textAlign = 'center';
+                        ctx.textBaseline = 'bottom';
+
+                        this.data.datasets.forEach(function (dataset, i) {
+                            var meta = chartInstance.controller.getDatasetMeta(i);
+                            meta.data.forEach(function (bar, index) {
+                                var data = dataset.data[index];
+                                ctx.fillText(data, bar._model.x, bar._model.y - 5);
+                            });
+                        });
+                    }
+                }
+            };
+
+            var ctx = document.getElementById('myChart').getContext('2d');
+            var chart = new Chart(ctx, {
+                type: type,
+                data: data,
+                options: options,
+            });
+        })();
+</script>
+
+

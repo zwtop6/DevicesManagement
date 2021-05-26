@@ -1,6 +1,6 @@
-﻿@model DeviceManagement.ViewModels.DeviceAnalysisViewModel
+﻿@model DeviceManagement.ViewModels.ChartViewModel
 
-@{ ViewBag.Title = "设备分析页面"; }
+@{ ViewBag.Title = "历史数据页面"; }
 
 <!DOCTYPE html>
 <html lang="zh-cmn-Hans">
@@ -16,7 +16,7 @@
 </head>
 
 <body>
-    
+
 
     <h3>@ViewBag.Title</h3>
 
@@ -25,47 +25,85 @@
     <div class="container">
         <div class="row">
             <div class="col-sm-2">
-                <form role="form">
+                <form role="form" enctype="multipart/form-data" asp-controller="home" asp-action="Chart" method="post">
+                    <div asp-validation-summary="All" class="text-danger"></div>
                     <div class="form-group">
                         <label for="startDate">起始年份</label>
-                        <input type="text" class="form-control" id="startDate" placeholder="请输入起始年份">
+                        <div>
+                            <input asp-for="StartYear" type="text" class="form-control" id="startDate" placeholder="请输入起始年份">
+                            <span asp-validation-for="StartYear" class="text-danger"></span>
+                        </div>
                     </div>
                     <div class="form-group">
                         <label for="endDate">结束年份</label>
-                        <input type="text" class="form-control" id="endDate" placeholder="请输入结束年份">
+                        <div>
+                            <input asp-for="EndYear" type="text" class="form-control" id="endDate" placeholder="请输入结束年份">
+                            <span asp-validation-for="EndYear" class="text-danger"></span>
+                        </div>
                     </div>
                     <label for="selectStatus">选择状态</label>
                     <div class="checkbox">
                         <label>
-                            <input type="checkbox">正常状态
+                            <input asp-for="SelectWarning" type="checkbox">警告状态
                         </label>
                     </div>
                     <div class="checkbox">
                         <label>
-                            <input type="checkbox">警告状态
-                        </label>
-                    </div>
-                    <div class="checkbox">
-                        <label>
-                            <input type="checkbox">错误状态
+                            <input asp-for="SecectError" type="checkbox">错误状态
                         </label>
                     </div>
                     <button type="submit" class="btn btn-default">查询</button>
                 </form>
             </div>
             <div class="col-sm-9">
-                <ul class="nav nav-tabs">
-                    <li class="active"><a href="#">总</a></li>
-                    <li><a href="#">气密性</a></li>
-                    <li><a href="#">传感器</a></li>
-                    <li><a href="#">阀门</a></li>
-                    <li><a href="#">真空泵</a></li>
-                    <li><a href="#">电机</a></li>
-                    <li><a href="#">加热炉</a></li>
-                </ul>
-                <canvas id="myChart">
-                    图表区
-                </canvas>
+                <div class="tabbable">
+                    <ul class="nav nav-tabs">
+                        <li class="active"><a href="#1" data-toggle="tab">总</a></li>
+                        <li><a href="#2" data-toggle="tab">气密性</a></li>
+                        <li><a href="#3" data-toggle="tab">传感器</a></li>
+                        <li><a href="#4" data-toggle="tab">阀门</a></li>
+                        <li><a href="#5" data-toggle="tab">真空泵</a></li>
+                        <li><a href="#6" data-toggle="tab">电机</a></li>
+                        <li><a href="#7" data-toggle="tab">加热炉</a></li>
+                    </ul>
+                    <div class="tab-content">
+                        <div class="tab-pane active" id="1">
+                            <canvas id="myChart0">
+                                图表区
+                            </canvas>
+                        </div>
+                        <div class="tab-pane" id="2">
+                            <canvas id="myChart1">
+                                图表区
+                            </canvas>
+                        </div>
+                        <div class="tab-pane" id="3">
+                            <canvas id="myChart2">
+                                图表区
+                            </canvas>
+                        </div>
+                        <div class="tab-pane" id="4">
+                            <canvas id="myChart3">
+                                图表区
+                            </canvas>
+                        </div>
+                        <div class="tab-pane" id="5">
+                            <canvas id="myChart4">
+                                图表区
+                            </canvas>
+                        </div>
+                        <div class="tab-pane" id="6">
+                            <canvas id="myChart5">
+                                图表区
+                            </canvas>
+                        </div>
+                        <div class="tab-pane" id="7">
+                            <canvas id="myChart6">
+                                图表区
+                            </canvas>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -76,95 +114,357 @@
     (function () {
         'use strict';
 
-        var type = 'bar';//bar,horizontalBar,line,radar,pie,doughnut
+        var labels = [], w = [], e = [];
+        var w1 = [], e1 = [];
+        var w2 = [], e2 = [];
+        var w3 = [], e3 = [];
+        var w4 = [], e4 = [];
+        var w5 = [], e5 = [];
+        var w6 = [], e6 = [];
 
-        //bar
-        var data = {
-            labels: [2016, 2017, 2018, 2019, 2020],
-            datasets: [
-                {
-                    label: '错误',
-                    data: [0, 1, 2, 2, 4],
-                    yAxisID: 'yAxes',
+        //使用Ajax获取json数据
+        var jsonData = $.ajax({
+            url: '/Home/GetCharts',
+            type: 'POST',   // 请求方式
+            dataType: 'json',
+            contentType: 'application/json',
+        }).done(function (res) {
 
-                    borderColor: 'red',
-                    borderWidth: 2,
-                    fill: true,
-                    backgroundColor: 'rgba(255,0,0,0.4)',
-                },
-                {
-                    label: '警告',
-                    data: [2, 4, 6, 7, 10],
-                    yAxisID: 'yAxes',
-
-                    borderColor: 'skyblue',
-                    borderWidth: 2,
-                    fill: true,
-                    backgroundColor: 'rgba(0,0,255,0.4)',
-                }
-            ]
-        };
-
-        var options = {
-            scales: {
-                yAxes: [
-                    {
-                        id: 'yAxes',
-                        type: 'linear',
-                        position: 'left',
-                        ticks: {
-                            suggestedMin: 0,
-                            suggestedMax: 12,
-                            stepSize: 2,
-                            callback: function (value, index, values) {
-                                return value + '次';
-                            },
-                        }
-                    }],
-            },
-            title: {
-                display: true,
-                text: '历史健康状态条形图',
-                fontColor: 'black',
-                fontsize: '48',
-                position: 'top',
-            },
-            legend: {
-                position: 'top',
-                display: true,
-            },
-            hover: {
-                animationDuration: 0  // 防止鼠标移上去，数字闪烁
-            },
-            animation: {           // 这部分是数值显示的功能实现
-                onComplete: function () {
-                    var chartInstance = this.chart,
-
-                        ctx = chartInstance.ctx;
-                    // 以下属于canvas的属性（font、fillStyle、textAlign...）
-                    ctx.font = Chart.helpers.fontString(Chart.defaults.global.defaultFontSize, Chart.defaults.global.defaultFontStyle, Chart.defaults.global.defaultFontFamily);
-                    ctx.fillStyle = "black";
-                    ctx.textAlign = 'center';
-                    ctx.textBaseline = 'bottom';
-
-                    this.data.datasets.forEach(function (dataset, i) {
-                        var meta = chartInstance.controller.getDatasetMeta(i);
-                        meta.data.forEach(function (bar, index) {
-                            var data = dataset.data[index];
-                            ctx.fillText(data, bar._model.x, bar._model.y - 5);
-                        });
-                    });
-                }
+            for (var i = 0; i < res.labels.length; i++) {
+                labels.push(res.labels[i])
             }
-        };
+            for (var i = 0; i < res.w.length; i++) {
+                w.push(res.w[i])
+            }
+            for (var i = 0; i < res.w1.length; i++) {
+                w1.push(res.w1[i])
+            }
+            for (var i = 0; i < res.w2.length; i++) {
+                w2.push(res.w2[i])
+            }
+            for (var i = 0; i < res.w3.length; i++) {
+                w3.push(res.w3[i])
+            }
+            for (var i = 0; i < res.w4.length; i++) {
+                w4.push(res.w4[i])
+            }
+            for (var i = 0; i < res.w5.length; i++) {
+                w5.push(res.w5[i])
+            }
+            for (var i = 0; i < res.w6.length; i++) {
+                w6.push(res.w6[i])
+            }
+            for (var i = 0; i < res.e.length; i++) {
+                e.push(res.e[i])
+            }
+            for (var i = 0; i < res.e1.length; i++) {
+                e1.push(res.e1[i])
+            }
+            for (var i = 0; i < res.e2.length; i++) {
+                e2.push(res.e2[i])
+            }
+            for (var i = 0; i < res.e3.length; i++) {
+                e3.push(res.e3[i])
+            }
+            for (var i = 0; i < res.e4.length; i++) {
+                e4.push(res.e4[i])
+            }
+            for (var i = 0; i < res.e5.length; i++) {
+                e5.push(res.e5[i])
+            }
+            for (var i = 0; i < res.e6.length; i++) {
+                e6.push(res.e6[i])
+            }
 
-        var ctx = document.getElementById('myChart').getContext('2d');
-        var chart = new Chart(ctx, {
-            type: type,
-            data: data,
-            options: options,
+            var type = 'bar';//bar,horizontalBar,line,radar,pie,doughnut
+
+            //bar
+            var data = {
+                labels: labels,
+                datasets: [
+                    {
+                        label: '错误',
+                        data: e,
+                        yAxisID: 'yAxes',
+
+                        borderColor: 'red',
+                        borderWidth: 2,
+                        fill: true,
+                        backgroundColor: 'rgba(255,0,0,0.4)',
+                    },
+                    {
+                        label: '警告',
+                        data: w,
+                        yAxisID: 'yAxes',
+
+                        borderColor: 'skyblue',
+                        borderWidth: 2,
+                        fill: true,
+                        backgroundColor: 'rgba(0,0,255,0.4)',
+                    }
+                ]
+            };
+
+            var options = {
+                scales: {
+                    yAxes: [
+                        {
+                            id: 'yAxes',
+                            type: 'linear',
+                            position: 'left',
+                            ticks: {
+                                suggestedMin: 0,
+                                suggestedMax: 12,
+                                stepSize: 2,
+                                callback: function (value, index, values) {
+                                    return value + '次';
+                                },
+                            }
+                        }],
+                },
+                title: {
+                    display: true,
+                    text: '历史健康状态条形图',
+                    fontColor: 'black',
+                    fontsize: '48',
+                    position: 'top',
+                },
+                legend: {
+                    position: 'top',
+                    display: true,
+                },
+                hover: {
+                    animationDuration: 0  // 防止鼠标移上去，数字闪烁
+                },
+                animation: {           // 这部分是数值显示的功能实现
+                    onComplete: function () {
+                        var chartInstance = this.chart,
+
+                            ctx = chartInstance.ctx;
+                        // 以下属于canvas的属性（font、fillStyle、textAlign...）
+                        ctx.font = Chart.helpers.fontString(Chart.defaults.global.defaultFontSize, Chart.defaults.global.defaultFontStyle, Chart.defaults.global.defaultFontFamily);
+                        ctx.fillStyle = "black";
+                        ctx.textAlign = 'center';
+                        ctx.textBaseline = 'bottom';
+
+                        this.data.datasets.forEach(function (dataset, i) {
+                            var meta = chartInstance.controller.getDatasetMeta(i);
+                            meta.data.forEach(function (bar, index) {
+                                var data = dataset.data[index];
+                                ctx.fillText(data, bar._model.x, bar._model.y - 5);
+                            });
+                        });
+                    }
+                }
+            };
+
+            var ctx = document.getElementById('myChart0').getContext('2d');
+            var chart = new Chart(ctx, {
+                type: type,
+                data: data,
+                options: options,
+            });
+
+            var data1 = {
+                labels: labels,
+                datasets: [
+                    {
+                        label: '错误',
+                        data: e1,
+                        yAxisID: 'yAxes',
+
+                        borderColor: 'red',
+                        borderWidth: 2,
+                        fill: true,
+                        backgroundColor: 'rgba(255,0,0,0.4)',
+                    },
+                    {
+                        label: '警告',
+                        data: w1,
+                        yAxisID: 'yAxes',
+
+                        borderColor: 'skyblue',
+                        borderWidth: 2,
+                        fill: true,
+                        backgroundColor: 'rgba(0,0,255,0.4)',
+                    }
+                ]
+            };
+
+            var ctx = document.getElementById('myChart1').getContext('2d');
+            var chart = new Chart(ctx, {
+                type: type,
+                data: data1,
+                options: options,
+            });
+
+            var data2 = {
+                labels: labels,
+                datasets: [
+                    {
+                        label: '错误',
+                        data: e2,
+                        yAxisID: 'yAxes',
+
+                        borderColor: 'red',
+                        borderWidth: 2,
+                        fill: true,
+                        backgroundColor: 'rgba(255,0,0,0.4)',
+                    },
+                    {
+                        label: '警告',
+                        data: w2,
+                        yAxisID: 'yAxes',
+
+                        borderColor: 'skyblue',
+                        borderWidth: 2,
+                        fill: true,
+                        backgroundColor: 'rgba(0,0,255,0.4)',
+                    }
+                ]
+            };
+
+            var ctx = document.getElementById('myChart2').getContext('2d');
+            var chart = new Chart(ctx, {
+                type: type,
+                data: data2,
+                options: options,
+            });
+
+            var data3 = {
+                labels: labels,
+                datasets: [
+                    {
+                        label: '错误',
+                        data: e3,
+                        yAxisID: 'yAxes',
+
+                        borderColor: 'red',
+                        borderWidth: 2,
+                        fill: true,
+                        backgroundColor: 'rgba(255,0,0,0.4)',
+                    },
+                    {
+                        label: '警告',
+                        data: w3,
+                        yAxisID: 'yAxes',
+
+                        borderColor: 'skyblue',
+                        borderWidth: 2,
+                        fill: true,
+                        backgroundColor: 'rgba(0,0,255,0.4)',
+                    }
+                ]
+            };
+
+            var ctx = document.getElementById('myChart3').getContext('2d');
+            var chart = new Chart(ctx, {
+                type: type,
+                data: data3,
+                options: options,
+            });
+
+            var data4 = {
+                labels: labels,
+                datasets: [
+                    {
+                        label: '错误',
+                        data: e4,
+                        yAxisID: 'yAxes',
+
+                        borderColor: 'red',
+                        borderWidth: 2,
+                        fill: true,
+                        backgroundColor: 'rgba(255,0,0,0.4)',
+                    },
+                    {
+                        label: '警告',
+                        data: w4,
+                        yAxisID: 'yAxes',
+
+                        borderColor: 'skyblue',
+                        borderWidth: 2,
+                        fill: true,
+                        backgroundColor: 'rgba(0,0,255,0.4)',
+                    }
+                ]
+            };
+
+            var ctx = document.getElementById('myChart4').getContext('2d');
+            var chart = new Chart(ctx, {
+                type: type,
+                data: data4,
+                options: options,
+            });
+
+            var data5 = {
+                labels: labels,
+                datasets: [
+                    {
+                        label: '错误',
+                        data: e5,
+                        yAxisID: 'yAxes',
+
+                        borderColor: 'red',
+                        borderWidth: 2,
+                        fill: true,
+                        backgroundColor: 'rgba(255,0,0,0.4)',
+                    },
+                    {
+                        label: '警告',
+                        data: w5,
+                        yAxisID: 'yAxes',
+
+                        borderColor: 'skyblue',
+                        borderWidth: 2,
+                        fill: true,
+                        backgroundColor: 'rgba(0,0,255,0.4)',
+                    }
+                ]
+            };
+
+            var ctx = document.getElementById('myChart5').getContext('2d');
+            var chart = new Chart(ctx, {
+                type: type,
+                data: data5,
+                options: options,
+            });
+
+            var data6 = {
+                labels: labels,
+                datasets: [
+                    {
+                        label: '错误',
+                        data: e6,
+                        yAxisID: 'yAxes',
+
+                        borderColor: 'red',
+                        borderWidth: 2,
+                        fill: true,
+                        backgroundColor: 'rgba(255,0,0,0.4)',
+                    },
+                    {
+                        label: '警告',
+                        data: w6,
+                        yAxisID: 'yAxes',
+
+                        borderColor: 'skyblue',
+                        borderWidth: 2,
+                        fill: true,
+                        backgroundColor: 'rgba(0,0,255,0.4)',
+                    }
+                ]
+            };
+
+            var ctx = document.getElementById('myChart6').getContext('2d');
+            var chart = new Chart(ctx, {
+                type: type,
+                data: data6,
+                options: options,
+            });
         });
     })();
 </script>
+
 
 

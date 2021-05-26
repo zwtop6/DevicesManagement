@@ -59,7 +59,7 @@ namespace DeviceManagement.Models
             return _devicesList.FirstOrDefault(a => a.Id == id);
         }
 
-        public List<DeviceDetail> GetDeviceDetails(int deviceID)
+        public List<DeviceDetail> GetDeviceDetails(string guid)
         {
             throw new NotImplementedException();
         }

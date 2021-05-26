@@ -91,9 +91,10 @@ namespace DeviceManagement.Models
             return deviceDetail;
         }
 
-        public List<DeviceDetail> GetDeviceDetails(int deviceID)
+        public List<DeviceDetail> GetDeviceDetails(string guid)
         {
-            throw new NotImplementedException();
+            List<DeviceDetail> deviceDetails = _context.DeviceDetails.Where(c => c.DeviceGUID == guid).ToList();
+            return deviceDetails;
         }
     }
 }

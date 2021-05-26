@@ -17,6 +17,10 @@ namespace DeviceManagement.Models
 
         public DateTime CheckTime { get; set; }
 
+        public int WarningNum { get; set; }
+
+        public int ErrorNum { get; set; }
+
         #region 气密性(低压气密性、高压气密性）
 
         public double LowPressStartP { get; set; }
@@ -36,6 +40,10 @@ namespace DeviceManagement.Models
 
         #endregion
 
+        public int WarningNum1 { get; set; }
+
+        public int ErrorNum1 { get; set; }
+
         #region 传感器(真空准确度、常压准确度、稳定度）
 
         public double VacuumPress { get; set; }
@@ -52,6 +60,10 @@ namespace DeviceManagement.Models
 
         #endregion
 
+        public int WarningNum2 { get; set; }
+
+        public int ErrorNum2 { get; set; }
+
         #region 阀门(打开、关闭、定时关）
 
         public bool OpenValve { get; set; }
@@ -64,6 +76,10 @@ namespace DeviceManagement.Models
 
         #endregion
 
+        public int WarningNum3 { get; set; }
+
+        public int ErrorNum3 { get; set; }
+
         #region 真空泵(使用时长、是否需要换油）
 
         public double UseDuring { get; set; }
@@ -75,6 +91,10 @@ namespace DeviceManagement.Models
         public string PumpAdvice { get; set; }
 
         #endregion
+
+        public int WarningNum4 { get; set; }
+
+        public int ErrorNum4 { get; set; }
 
         #region 升降电机(控制是否正常，上升下降时间）
 
@@ -91,6 +111,10 @@ namespace DeviceManagement.Models
         public string MotorAdvice { get; set; }
 
         #endregion
+
+        public int WarningNum5 { get; set; }
+
+        public int ErrorNum5 { get; set; }
 
         #region 加热炉(控制是否正常，稳定性，准确性）
 
@@ -111,5 +135,9 @@ namespace DeviceManagement.Models
         public string StoveAdvice { get; set; }
 
         #endregion
+
+        public int WarningNum6 { get; set; }
+
+        public int ErrorNum6 { get; set; }
     }
 }
